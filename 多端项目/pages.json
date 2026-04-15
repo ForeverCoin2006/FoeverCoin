@@ -1,15 +1,86 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "智游文创"
+			}
+		},
+		{
+			"path": "pages/module2/index",
+			"style": {
+				"navigationBarTitleText": "展览资讯",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/module2/cloudTour",
+			"style": {
+				"navigationBarTitleText": "云游数字展厅",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/module3/index",
+			"style": {
+				"navigationBarTitleText": "景区导览",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/module3/spotDetail",
+			"style": {
+				"navigationBarTitleText": "景点详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/module3/routePlan",
+			"style": {
+				"navigationBarTitleText": "路线规划",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/module5/index",
+			"style": {
+				"navigationBarTitleText": "文创商城"
+			}
+		},
+		{
+			"path": "pages/module5/orders",
+			"style": {
+				"navigationBarTitleText": "我的订单"
+			}
+		},
+		{
+			"path": "pages/module5/detail",
+			"style": {
+				"navigationBarTitleText": "商品详情"
+			}
+		},
+		{
+			"path": "pages/module5/confirm",
+			"style": {
+				"navigationBarTitleText": "确认订单"
+			}
+		},
+		{
+			"path": "pages/module5/afterSale",
+			"style": {
+				"navigationBarTitleText": "售后服务"
+			}
+		},
+		{
+			"path": "pages/module8/aiAgent/aiAgent",
+			"style": {
+				"navigationBarTitleText": "AI智能助手"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "智游文创",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	},
