@@ -1,0 +1,7 @@
+{
+  "name": "applyAfterSale",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

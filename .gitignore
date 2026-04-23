@@ -1,0 +1,15 @@
+node_modules/
+unpackage/
+dist/
+.hbuilderx/
+.vscode/
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
+.idea/
+*.iml
+uniCloud-aliyun/.env
+uniCloud-aliyun/db-data/
+uniCloud-aliyun/logs/
