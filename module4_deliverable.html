@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智游故宫 - 模块4 完整功能交互演示</title>
+    <!-- 引入 Vue 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <style>
+        :root { --gugong-red: #8b0000; --bg-gray: #f5f5f5; --gold: #d4af37; }
+        body { font-family: -apple-system, "Microsoft YaHei", sans-serif; margin: 0; background: #f0f2f5; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        
+        .main-container { width: 100%; max-width: 1100px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 顶部导航切换 */
+        .top-tabs { display: flex; background: #fff; border-radius: 12px; padding: 5px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .top-tab { padding: 10px 30px; border: none; background: none; cursor: pointer; border-radius: 8px; font-size: 15px; transition: 0.3s; color: #666; }
+        .top-tab.active { background: var(--gugong-red); color: #fff; font-weight: bold; }
+
+        /* --- 手机模拟器 --- */
+        .phone-frame {
+            width: 375px; height: 780px; background: #fff; border: 12px solid #222; border-radius: 45px;
+            position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.2); overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .phone-screen { flex: 1; overflow-y: auto; background: var(--bg-gray); display: flex; flex-direction: column; }
+        .phone-screen::-webkit-scrollbar { width: 0; }
+
+        /* --- 预约页面渲染 --- */
+        .res-header { height: 160px; background: var(--gugong-red); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .res-header .title { font-size: 24px; font-weight: bold; letter-spacing: 2px; }
+        .res-header .sub { font-size: 12px; opacity: 0.7; margin-top: 5px; }
+        
+        .form-card { margin: -30px 15px 20px; background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+        .section-title { font-size: 15px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 4px; height: 14px; background: var(--gugong-red); margin-right: 8px; border-radius: 2px; }
+        
+        .date-scroll { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 5px; }
+        .date-scroll::-webkit-scrollbar { height: 0; }
+        .date-item { flex: 0 0 65px; text-align: center; padding: 12px 0; background: #f8f9fa; border-radius: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .date-item.active { background: #fff; border-color: var(--gugong-red); color: var(--gugong-red); box-shadow: 0 4px 10px rgba(139,0,0,0.1); }
+        .date-item .w { font-size: 11px; margin-bottom: 4px; opacity: 0.6; }
+        .date-item .d { font-size: 14px; font-weight: bold; }
+
+        .btn-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .btn-group.three { grid-template-columns: repeat(3, 1fr); }
+        .opt-btn { height: 42px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px; font-size: 14px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .opt-btn.active { background: var(--gugong-red); color: #fff; font-weight: bold; }
+        
+        .submit-btn { width: 100%; height: 48px; background: var(--gugong-red); color: #fff; border: none; border-radius: 24px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 15px rgba(139,0,0,0.3); }
+
+        /* --- 列表页面渲染 --- */
+        .nav-bar { height: 50px; background: var(--gugong-red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+        .order-list { padding: 15px; }
+        .order-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .card-head { display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; margin-bottom: 12px; }
+        .card-head .sn { font-size: 11px; color: #999; }
+        .card-head .st { font-size: 13px; font-weight: bold; color: var(--gugong-red); }
+        .card-head .st.refunded { color: #999; }
+        .card-head .st.changed { color: #e6a23c; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #666; }
+        .row .v { color: #333; font-weight: 500; }
+        .card-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; border-top: 1px dashed #eee; padding-top: 12px; }
+        .sm-btn { padding: 5px 15px; border-radius: 15px; font-size: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+        .sm-btn.warn { color: #e6a23c; border-color: #e6a23c; }
+
+        /* --- 弹窗组件 --- */
+        .mask { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+        .modal { width: 100%; background: #fff; border-radius: 20px; padding: 25px; text-align: center; animation: pop 0.3s ease; }
+        @keyframes pop { from { transform: scale(0.8); opacity: 0; } }
+        .modal h3 { margin: 0 0 10px; color: #333; }
+        .modal p { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .modal .m-btn { background: var(--gugong-red); color: #fff; border: none; padding: 10px 30px; border-radius: 20px; font-size: 14px; cursor: pointer; width: 100%; }
+        
+        .bottom-modal { align-items: flex-end; padding: 0; }
+        .bottom-content { width: 100%; background: #fff; border-radius: 20px 20px 0 0; padding: 25px; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } }
+
+        /* --- 代码查看区 --- */
+        .code-area { width: 100%; margin-top: 30px; display: flex; flex-direction: column; gap: 20px; }
+        .file-box { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .file-name { background: #282c34; color: #abb2bf; padding: 10px 20px; font-family: monospace; font-size: 13px; display: flex; justify-content: space-between; }
+        pre { margin: 0; padding: 20px; background: #282c34; color: #abb2bf; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="main-container">
+    <header style="text-align:center; margin-bottom:20px;">
+        <h1 style="color:var(--gugong-red); margin:0;">智游故宫 - 模块4 交互系统</h1>
+        <p style="color:#666; font-size:14px;">门票预约、订单管理、退票与改期功能完整演示</p>
+    </header>
+
+    <div class="top-tabs">
+        <button class="top-tab" :class="{active: view === 'app'}" @click="view = 'app'">功能演示 (可点击交互)</button>
+        <button class="top-tab" :class="{active: view === 'code'}" @click="view = 'code'">查看源代码</button>
+    </div>
+
+    <!-- 1. 功能演示区 -->
+    <div v-if="view === 'app'" class="phone-frame">
+        <div class="phone-screen">
+            
+            <!-- 预约主页 -->
+            <div v-if="page === 'reserve'">
+                <div class="res-header">
+                    <div class="title">智游故宫</div>
+                    <div class="sub">AI 赋能 · 沉浸文旅</div>
+                </div>
+                <div class="form-card">
+                    <div class="section-title">选择日期</div>
+                    <div class="date-scroll">
+                        <div v-for="d in dates" :key="d.val" class="date-item" :class="{active: form.date === d.val}" @click="form.date = d.val">
+                            <div class="w">{{ d.week }}</div>
+                            <div class="d">{{ d.show }}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top:20px" class="section-title">选择时段</div>
+                    <div class="btn-group">
+                        <div class="opt-btn" :class="{active: form.time === '上午'}" @click="form.time = '上午'">上午</div>
+                        <div class="opt-btn" :class="{active: form.time === '下午'}" @click="form.time = '下午'">下午</div>
+                    </div>
+
+                    <div class="section-title">选择票种</div>
+                    <div class="btn-group three">
+                        <div class="opt-btn" :class="{active: form.type === '成人'}" @click="form.type = '成人'">成人</div>
+                        <div class="opt-btn" :class="{active: form.type === '学生'}" @click="form.type = '学生'">学生</div>
+                        <div class="opt-btn" :class="{active: form.type === '儿童'}" @click="form.type = '儿童'">儿童</div>
+                    </div>
+
+                    <button class="submit-btn" @click="handleReserve">立即预约</button>
+                    <p @click="page = 'list'" style="text-align:center; color:var(--gugong-red); font-size:13px; margin-top:20px; cursor:pointer; text-decoration:underline;">查看我的预约订单 ></p>
+                </div>
+            </div>
+
+            <!-- 列表页 -->
+            <div v-if="page === 'list'">
+                <div class="nav-bar">我的预约单</div>
+                <div class="order-list">
+                    <div v-if="orders.length === 0" style="text-align:center; padding-top:100px; color:#999;">
+                        <p>暂无预约记录</p>
+                        <button class="sm-btn" @click="page = 'reserve'" style="margin-top:10px">去预约</button>
+                    </div>
+                    <div class="order-card" v-for="(o, idx) in orders" :key="idx">
+                        <div class="card-head">
+                            <span class="sn">单号：{{ o.id }}</span>
+                            <span class="st" :class="{refunded: o.status==='已退票', changed: o.status==='已改期'}">{{ o.status }}</span>
+                        </div>
+                        <div class="row"><span>日期</span><span class="v">{{ o.date }}</span></div>
+                        <div class="row"><span>时段</span><span class="v">{{ o.time }}</span></div>
+                        <div class="row"><span>票种</span><span class="v">{{ o.type }}票</span></div>
+                        <div class="card-foot" v-if="o.status === '正常'">
+                            <button class="sm-btn warn" @click="openChange(idx)">改期</button>
+                            <button class="sm-btn" @click="handleRefund(idx)">退票</button>
+                        </div>
+                    </div>
+                </div>
+                <div @click="page = 'reserve'" style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); background:#fff; padding:10px 25px; border-radius:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); cursor:pointer; font-size:14px;">返回预约</div>
+            </div>
+
+            <!-- 成功弹窗 -->
+            <div class="mask" v-if="modal.show">
+                <div class="modal">
+                    <h3>{{ modal.title }}</h3>
+                    <p>{{ modal.msg }}</p>
+                    <button class="m-btn" @click="closeModal">我知道了</button>
+                </div>
+            </div>
+
+            <!-- 改期底部弹窗 -->
+            <div class="mask bottom-modal" v-if="changeBox.show" @click="changeBox.show = false">
+                <div class="bottom-content" @click.stop>
+                    <div class="section-title">修改日期</div>
+                    <div class="date-scroll">
+                        <div v-for="d in dates" :key="d.val" class="date-item" :class="{active: changeBox.date === d.val}" @click="changeBox.date = d.val">
+                            <div class="w">{{ d.week }}</div>
+                            <div class="d">{{ d.show }}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px" class="section-title">修改时段</div>
+                    <div class="btn-group">
+                        <div class="opt-btn" :class="{active: changeBox.time === '上午'}" @click="changeBox.time = '上午'">上午</div>
+                        <div class="opt-btn" :class="{active: changeBox.time === '下午'}" @click="changeBox.time = '下午'">下午</div>
+                    </div>
+                    <button class="submit-btn" @click="confirmChange">确认修改</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 2. 源代码展示区 -->
+    <div v-if="view === 'code'" class="code-area">
+        <div class="file-box" v-for="f in sourceFiles" :key="f.name">
+            <div class="file-name"><span>{{ f.name }}</span><span style="color:#e6c07b">{{ f.type }}</span></div>
+            <pre><code>{{ f.content }}</code></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+new Vue({
+    el: '#app',
+    data: {
+        view: 'app',
+        page: 'reserve',
+        dates: [],
+        form: { date: '', time: '上午', type: '成人' },
+        orders: [
+            { id: 'RE829371', date: '2026-04-16', time: '下午', type: '成人', status: '正常' }
+        ],
+        modal: { show: false, title: '', msg: '' },
+        changeBox: { show: false, index: -1, date: '', time: '' },
+        sourceFiles: [
+            { name: 'pages/module4/reserve.vue', type: 'Vue SFC', content: '<template>...</template>\n<script>\n// 包含未来7天日期计算、表单提交、重复预约拦截逻辑\nexport default {\n  data() { return { dateList: [], form: { date: "", time: "上午", type: "成人" } } },\n  methods: {\n    async handleSubmit() {\n      const res = await uniCloud.callFunction({ name: "reserve-create", data: this.form });\n      if(res.result.code === 200) uni.navigateTo({ url: "/pages/module4/reserve-list" });\n    }\n  }\n}\n<\/script>' },
+            { name: 'uniCloud/cloudfunctions/reserve-create/index.js', type: 'Node.js', content: '"use strict";\nconst db = uniCloud.database();\nexports.main = async (event) => {\n  const { userId, date, time } = event;\n  // 1. 检查该用户当天该时段是否有“正常”订单\n  const check = await db.collection("reserve").where({ userId, date, time, status: "正常" }).get();\n  if (check.data.length > 0) return { code: 400, msg: "请勿重复预约" };\n  // 2. 插入记录并生成 reserveId\n  const res = await db.collection("reserve").add({ ...event, status: "正常", createTime: Date.now() });\n  return { code: 200, msg: "成功", data: { id: res.id } };\n};' }
+        ]
+    },
+    created() {
+        const weeks = ['周日','周一','周二','周三','周四','周五','周六'];
+        for(let i=0; i<7; i++) {
+            let d = new Date();
+            d.setDate(d.getDate() + i);
+            this.dates.push({
+                week: weeks[d.getDay()],
+                show: (d.getMonth()+1)+'-'+d.getDate(),
+                val: d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0')
+            });
+        }
+        this.form.date = this.dates[0].val;
+    },
+    methods: {
+        handleReserve() {
+            // 模拟重复预约拦截
+            const exists = this.orders.find(o => o.date === this.form.date && o.time === this.form.time && o.status === '正常');
+            if (exists) {
+                this.modal = { show: true, title: '预约失败', msg: '您在该时段已有预约，请勿重复提交。' };
+                return;
+            }
+            // 模拟提交
+            this.orders.unshift({
+                id: 'RE' + Math.floor(Math.random()*1000000),
+                ...this.form,
+                status: '正常'
+            });
+            this.modal = { show: true, title: '预约成功', msg: '您的门票预约已完成，请准时入场。' };
+        },
+        handleRefund(idx) {
+            if(confirm('确定要退票吗？退票后不可撤回。')) {
+                this.orders[idx].status = '已退票';
+                this.$forceUpdate();
+            }
+        },
+        openChange(idx) {
+            this.changeBox = {
+                show: true,
+                index: idx,
+                date: this.orders[idx].date,
+                time: this.orders[idx].time
+            };
+        },
+        confirmChange() {
+            const idx = this.changeBox.index;
+            this.orders[idx].date = this.changeBox.date;
+            this.orders[idx].time = this.changeBox.time;
+            this.orders[idx].status = '已改期';
+            this.changeBox.show = false;
+            this.modal = { show: true, title: '修改成功', msg: '您的预约时间已更新。' };
+        },
+        closeModal() {
+            this.modal.show = false;
+            if(this.modal.title === '预约成功') this.page = 'list';
+        },
+        goList() {
+            this.showSuccess = false;
+            this.page = 'list';
+        }
+    }
+});
+</script>
+
+</body>
+</html>

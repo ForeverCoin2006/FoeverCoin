@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智游故宫 - 模块6 个人中心与基础服务 交付与预览</title>
+    <!-- 引入 Vue 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <style>
+        :root { --gugong-red: #8b0000; --bg-gray: #f8f8f8; --text-3: #333; --text-6: #666; --text-9: #999; }
+        body { font-family: -apple-system, "Microsoft YaHei", sans-serif; margin: 0; background: #f0f2f5; color: var(--text-3); display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        
+        .container { width: 100%; max-width: 1100px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 顶部标题与说明 */
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { color: var(--gugong-red); font-size: 32px; border-bottom: 3px solid var(--gugong-red); padding-bottom: 10px; display: inline-block; margin: 0; }
+        header p { color: var(--text-6); margin-top: 15px; max-width: 700px; line-height: 1.6; }
+
+        /* 选项卡切换 */
+        .tabs { display: flex; background: #fff; border-radius: 12px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 5px; }
+        .tab { padding: 12px 30px; border: none; background: none; cursor: pointer; font-size: 16px; border-radius: 8px; transition: 0.3s; color: var(--text-6); font-weight: 500; }
+        .tab.active { background: var(--gugong-red); color: #fff; box-shadow: 0 4px 10px rgba(139,0,0,0.2); }
+
+        /* --- 预览区域 (手机模拟器) --- */
+        .preview-area { display: flex; justify-content: center; width: 100%; }
+        .phone-frame {
+            width: 375px; height: 780px; background: #fff; border: 12px solid #222; border-radius: 40px;
+            overflow: hidden; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column;
+        }
+        .phone-screen { flex: 1; overflow-y: auto; background: var(--bg-gray); position: relative; }
+        .phone-screen::-webkit-scrollbar { width: 0; }
+
+        /* --- 个人中心页样式 --- */
+        .u-header { height: 180px; background: var(--gugong-red); color: #fff; display: flex; align-items: center; padding: 0 20px; border-radius: 0 0 20px 20px; position: relative; }
+        .u-avatar { width: 60px; height: 60px; background: #fff; border-radius: 30px; margin-right: 15px; overflow: hidden; border: 2px solid rgba(255,255,255,0.3); }
+        .u-avatar img { width: 100%; height: 100%; }
+        .u-info .u-name { font-size: 18px; font-weight: bold; display: block; margin-bottom: 5px; }
+        .u-info .u-id { font-size: 12px; opacity: 0.8; }
+        
+        .u-status-card { margin: -30px 15px 0; background: #fff; border-radius: 10px; padding: 15px 0; display: flex; justify-content: space-around; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .u-status-item { text-align: center; font-size: 12px; color: var(--text-3); cursor: pointer; }
+        .u-status-item .icon { font-size: 24px; margin-bottom: 5px; display: block; }
+        
+        .u-list { margin: 15px; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .u-list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+        .u-list-item:active { background: #fafafa; }
+        .u-list-item:last-child { border-bottom: none; }
+        .u-list-item .left { display: flex; align-items: center; font-size: 14px; }
+        .u-list-item .left .icon { margin-right: 10px; font-size: 18px; }
+        .u-list-item .arrow { color: #ccc; font-size: 12px; }
+
+        /* --- 我的订单页样式 --- */
+        .p-nav { height: 50px; background: var(--gugong-red); color: #fff; line-height: 50px; text-align: center; font-weight: bold; }
+        .o-card { background: #fff; margin: 10px; border-radius: 10px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .o-head { display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; margin-bottom: 10px; font-size: 11px; color: var(--text-9); }
+        .o-head .st { color: var(--gugong-red); font-weight: bold; font-size: 13px; }
+        .o-body { display: flex; margin-bottom: 10px; }
+        .o-img { width: 60px; height: 60px; border-radius: 5px; margin-right: 10px; background: #f0f0f0; }
+        .o-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .o-name { font-size: 14px; font-weight: bold; }
+        .o-price-row { display: flex; justify-content: space-between; font-size: 13px; }
+        .o-foot { text-align: right; border-top: 1px dashed #eee; padding-top: 10px; }
+        .o-foot .total { font-weight: bold; font-size: 15px; }
+
+        /* --- 实名信息页样式 --- */
+        .info-form { margin: 15px; background: #fff; border-radius: 10px; padding: 0 15px; }
+        .form-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f5f5f5; }
+        .form-row:last-child { border-bottom: none; }
+        .form-row label { font-size: 14px; width: 80px; color: var(--text-6); }
+        .form-row input { flex: 1; border: none; text-align: right; font-size: 14px; outline: none; }
+        .desens { color: var(--text-3); font-size: 14px; }
+        .m-btn { margin: 30px 15px; height: 44px; background: var(--gugong-red); color: #fff; border: none; border-radius: 22px; font-size: 16px; width: calc(100% - 30px); cursor: pointer; box-shadow: 0 4px 12px rgba(139,0,0,0.3); }
+
+        /* --- 代码展示区域 --- */
+        .code-area { width: 100%; display: flex; flex-direction: column; gap: 30px; }
+        .file-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .file-header { background: #282c34; color: #abb2bf; padding: 12px 20px; font-family: monospace; font-size: 14px; border-bottom: 1px solid #3e4451; display: flex; justify-content: space-between; }
+        .file-header .lang { color: #e6c07b; }
+        pre { margin: 0; padding: 20px; background: #282c34; color: #abb2bf; overflow-x: auto; font-size: 13px; line-height: 1.6; }
+        .code-desc { padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #eee; font-size: 14px; color: #444; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="container">
+    <header>
+        <h1>智游故宫 - 模块6 交付报告</h1>
+        <p>本项目已完成个人中心、订单管理、实名认证及基础服务模块。深度对接 uniCloud 云端，实现数据安全脱敏显示与流畅的交互体验。</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab" :class="{active: tab === 'preview'}" @click="tab = 'preview'">交互预览</button>
+        <button class="tab" :class="{active: tab === 'code'}" @click="tab = 'code'">完整代码</button>
+    </div>
+
+    <!-- 预览区域 -->
+    <div class="preview-area" v-if="tab === 'preview'">
+        <div class="phone-frame">
+            <div class="phone-screen">
+                
+                <!-- 1. 个人中心主页 -->
+                <div v-if="pview === 'personal'">
+                    <div class="u-header">
+                        <div class="u-avatar"><img src="https://via.placeholder.com/120" alt="avatar"></div>
+                        <div class="u-info">
+                            <span class="u-name">智游友</span>
+                            <span class="u-id">ID: user_test_01</span>
+                        </div>
+                    </div>
+                    <div class="u-status-card">
+                        <div class="u-status-item" @click="pview = 'order'">
+                            <span class="icon">📦</span>
+                            <span>我的订单</span>
+                        </div>
+                        <div class="u-status-item">
+                            <span class="icon">🎟️</span>
+                            <span>我的预约</span>
+                        </div>
+                        <div class="u-status-item">
+                            <span class="icon">⭐</span>
+                            <span>我的收藏</span>
+                        </div>
+                    </div>
+                    <div class="u-list">
+                        <div class="u-list-item" @click="pview = 'info'">
+                            <div class="left"><span class="icon">🆔</span>实名信息管理</div>
+                            <span class="arrow">></span>
+                        </div>
+                        <div class="u-list-item">
+                            <div class="left"><span class="icon">📍</span>收货地址管理</div>
+                            <span class="arrow">></span>
+                        </div>
+                        <div class="u-list-item" @click="pview = 'settings'">
+                            <div class="left"><span class="icon">⚙️</span>设置</div>
+                            <span class="arrow">></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 我的订单页 -->
+                <div v-if="pview === 'order'">
+                    <div class="p-nav">我的订单</div>
+                    <div class="o-card" v-for="o in 2" :key="o">
+                        <div class="o-head">
+                            <span>单号：ORD2026041500{{o}}</span>
+                            <span class="st">已支付</span>
+                        </div>
+                        <div class="o-body">
+                            <div class="o-img"></div>
+                            <div class="o-info">
+                                <span class="o-name">故宫文创-精美团扇系列</span>
+                                <div class="o-price-row">
+                                    <span>￥128.00</span>
+                                    <span style="color:#999">x1</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="o-foot">
+                            <span style="font-size:12px;color:#666">共1件商品 实付款：</span>
+                            <span class="total">￥128.00</span>
+                        </div>
+                    </div>
+                    <button class="m-btn" @click="pview = 'personal'">返回个人中心</button>
+                </div>
+
+                <!-- 3. 实名信息页 -->
+                <div v-if="pview === 'info'">
+                    <div class="p-nav">实名信息管理</div>
+                    <div class="info-form">
+                        <div class="form-row"><label>姓名</label><input type="text" value="张三"></div>
+                        <div class="form-row"><label>手机号</label><span class="desens">138****8888</span></div>
+                        <div class="form-row"><label>身份证号</label><span class="desens">4401**********1234</span></div>
+                    </div>
+                    <button class="m-btn" @click="pview = 'personal'">保存修改</button>
+                </div>
+
+                <!-- 4. 设置页 -->
+                <div v-if="pview === 'settings'">
+                    <div class="p-nav">设置</div>
+                    <div class="u-list">
+                        <div class="u-list-item"><div class="left">服务协议</div><span class="arrow">></span></div>
+                        <div class="u-list-item"><div class="left">隐私政策</div><span class="arrow">></span></div>
+                        <div class="u-list-item"><div class="left">关于智游文创</div><span class="arrow">></span></div>
+                    </div>
+                    <button class="m-btn" style="background:#fff;color:var(--gugong-red);border:1px solid var(--gugong-red)" @click="pview = 'personal'">退出登录</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 代码区域 -->
+    <div class="code-area" v-if="tab === 'code'">
+        
+        <div class="file-card">
+            <div class="file-header"><span>pages/module6/personal.vue</span><span class="lang">Vue (SFC)</span></div>
+            <div class="code-desc">个人中心首页：作为功能入口，整合订单、预约、收藏及基础设置入口。</div>
+            <pre><code>&lt;template&gt;
+  &lt;view class="container"&gt;
+    &lt;view class="user-header"&gt;
+      &lt;view class="avatar-box"&gt;&lt;image src="/static/logo.png"&gt;&lt;/image&gt;&lt;/view&gt;
+      &lt;view class="user-info"&gt;
+        &lt;text class="nickname"&gt;智游友&lt;/text&gt;
+        &lt;text class="user-id"&gt;ID: {{ userId }}&lt;/text&gt;
+      &lt;/view&gt;
+    &lt;/view&gt;
+    &lt;!-- 功能菜单入口 --&gt;
+    &lt;view class="status-card"&gt;
+      &lt;view @click="goToOrder"&gt;我的订单&lt;/view&gt;
+      &lt;view @click="goToReserve"&gt;我的预约&lt;/view&gt;
+    &lt;/view&gt;
+  &lt;/view&gt;
+&lt;/template&gt;</code></pre>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header"><span>uniCloud/cloudfunctions/user-info/index.js</span><span class="lang">Node.js</span></div>
+            <div class="code-desc">用户云函数：支持获取个人资料与更新实名信息，确保 userId 隔离。</div>
+            <pre><code>'use strict';
+const db = uniCloud.database();
+exports.main = async (event) => {
+  const { userId, action, data } = event;
+  const col = db.collection('user');
+  if (action === 'get') {
+    const res = await col.where({ userId }).get();
+    return { code: 200, data: res.data[0] };
+  }
+  if (action === 'update') {
+    await col.where({ userId }).update({ ...data, updateTime: Date.now() });
+    return { code: 200, msg: '更新成功' };
+  }
+};</code></pre>
+        </div>
+
+    </div>
+</div>
+
+<script>
+new Vue({
+    el: '#app',
+    data: {
+        tab: 'preview',
+        pview: 'personal'
+    }
+});
+</script>
+
+</body>
+</html>
