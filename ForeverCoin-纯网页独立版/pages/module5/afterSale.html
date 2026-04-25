@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>售后申请 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 20px;
+        }
+        .after-sale-container {
+            padding: 10px;
+        }
+        .order-info {
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            background: #fff;
+        }
+        .order-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .order-item {
+            display: flex;
+            margin-bottom: 7.5px;
+            font-size: 14px;
+        }
+        .order-label {
+            width: 60px;
+            color: #666;
+        }
+        .order-value {
+            flex: 1;
+            color: #333;
+        }
+        .reason-section {
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .reason-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7.5px;
+        }
+        .reason-item {
+            padding: 7.5px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+        .reason-item.active {
+            border-color: #007aff;
+            color: #007aff;
+            background-color: #e6f0ff;
+        }
+        .description-section {
+            margin-bottom: 15px;
+        }
+        .description-section textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 14px;
+            resize: none;
+        }
+        .images-section {
+            margin-bottom: 20px;
+        }
+        .image-uploader {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .image-item {
+            position: relative;
+            width: 75px;
+            height: 75px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .image-preview {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .image-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .image-add {
+            width: 75px;
+            height: 75px;
+            border: 2px dashed #e0e0e0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+        }
+        .submit-btn {
+            width: 100%;
+            height: 44px;
+            line-height: 44px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            padding: 0;
+            cursor: pointer;
+        }
+        .placeholder {
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="after-sale-container">
+        <div class="order-info">
+            <div class="order-title">订单信息</div>
+            <div class="order-item">
+                <div class="order-label">订单号：</div>
+                <div class="order-value" id="orderNo">202401010001</div>
+            </div>
+            <div class="order-item">
+                <div class="order-label">商品：</div>
+                <div class="order-value" id="goodsName">文化T恤</div>
+            </div>
+            <div class="order-item">
+                <div class="order-label">数量：</div>
+                <div class="order-value" id="quantity">1</div>
+            </div>
+            <div class="order-item">
+                <div class="order-label">金额：</div>
+                <div class="order-value" id="totalPrice">¥59.90</div>
+            </div>
+        </div>
+
+        <div class="reason-section">
+            <div class="section-title">售后原因</div>
+            <div class="reason-options">
+                <div class="reason-item" onclick="selectReason('quality')">商品质量问题</div>
+                <div class="reason-item" onclick="selectReason('description')">商品与描述不符</div>
+                <div class="reason-item" onclick="selectReason('damage')">商品损坏</div>
+                <div class="reason-item" onclick="selectReason('other')">其他原因</div>
+            </div>
+        </div>
+
+        <div class="description-section">
+            <div class="section-title">问题描述</div>
+            <textarea 
+                id="description" 
+                placeholder="请详细描述您遇到的问题"
+            ></textarea>
+        </div>
+
+        <div class="images-section">
+            <div class="section-title">上传凭证</div>
+            <div class="image-uploader" id="imageUploader">
+                <div class="image-add" onclick="chooseImage">+</div>
+            </div>
+        </div>
+
+        <button class="submit-btn" onclick="submitAfterSale">提交售后申请</button>
+    </div>
+
+    <script>
+        // 全局变量
+        let orderId = '';
+        let order = {
+            orderNo: '202401010001',
+            goodsName: '文化T恤',
+            quantity: 1,
+            totalPrice: 59.9
+        };
+        let selectedReason = '';
+        let description = '';
+        let images = [];
+
+        // 初始化页面
+        function init() {
+            // 从URL获取订单ID
+            const urlParams = new URLSearchParams(window.location.search);
+            orderId = urlParams.get('orderId');
+            if (orderId) {
+                getOrderDetail();
+            } else {
+                alert('订单ID不存在');
+            }
+        }
+
+        // 获取订单详情
+        function getOrderDetail() {
+            // 模拟网络请求
+            setTimeout(() => {
+                // 渲染订单信息
+                document.getElementById('orderNo').textContent = order.orderNo;
+                document.getElementById('goodsName').textContent = order.goodsName;
+                document.getElementById('quantity').textContent = order.quantity;
+                document.getElementById('totalPrice').textContent = `¥${order.totalPrice.toFixed(2)}`;
+            }, 500);
+        }
+
+        // 选择售后原因
+        function selectReason(reason) {
+            selectedReason = reason;
+            
+            // 更新选项状态
+            const reasonItems = document.querySelectorAll('.reason-item');
+            reasonItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // 选择图片
+        function chooseImage() {
+            if (images.length >= 3) {
+                alert('最多只能上传3张图片');
+                return;
+            }
+            
+            // 模拟选择图片
+            const imageUrl = `图片${images.length + 1}`;
+            images.push(imageUrl);
+            renderImages();
+        }
+
+        // 移除图片
+        function removeImage(index) {
+            images.splice(index, 1);
+            renderImages();
+        }
+
+        // 渲染图片
+        function renderImages() {
+            const imageUploader = document.getElementById('imageUploader');
+            imageUploader.innerHTML = '';
+            
+            images.forEach((image, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.innerHTML = `
+                    <div class="image-preview">${image}</div>
+                    <div class="image-remove" onclick="removeImage(${index})")>×</div>
+                `;
+                imageUploader.appendChild(imageItem);
+            });
+            
+            if (images.length < 3) {
+                const imageAdd = document.createElement('div');
+                imageAdd.className = 'image-add';
+                imageAdd.onclick = chooseImage;
+                imageAdd.textContent = '+';
+                imageUploader.appendChild(imageAdd);
+            }
+        }
+
+        // 提交售后申请
+        function submitAfterSale() {
+            description = document.getElementById('description').value;
+            
+            if (!selectedReason) {
+                alert('请选择售后原因');
+                return;
+            }
+
+            if (!description) {
+                alert('请描述问题');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('请先登录');
+                return;
+            }
+
+            // 模拟提交售后申请
+            setTimeout(() => {
+                alert('售后申请提交成功');
+                setTimeout(() => {
+                    window.history.back();
+                }, 1500);
+            }, 1000);
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

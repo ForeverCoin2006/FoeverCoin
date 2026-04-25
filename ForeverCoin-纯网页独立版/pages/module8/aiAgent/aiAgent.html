@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 助手</title>
+    <style>
+        .page { display:flex; flex-direction:column; height:100vh; }
+        .chat { flex:1; padding:12px; background:#f5f5f5; overflow-y:auto; }
+        .msg { margin:8px 0; padding:10px; border-radius:6px; max-width:80%; }
+        .user { align-self:flex-end; background:#d1eaff; margin-left:auto; }
+        .ai { align-self:flex-start; background:#ffffff; }
+        .input-area { display:flex; padding:8px; border-top:1px solid #eee; }
+        input { flex:1; padding:8px; border:1px solid #ddd; border-radius:4px; margin-right:8px; }
+        button { padding:8px 12px; background:#007aff; color:#fff; border-radius:4px; border:none; cursor:pointer; }
+        button:disabled { background:#ccc; cursor:not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="chat" id="chat">
+            <div class="msg ai">你好，我是智游文旅 AI 助手，可以帮你讲解景点、规划路线。</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="input" placeholder="问我关于景点或路线的问题" />
+            <button id="sendBtn" onclick="send()">发送</button>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟AI调用函数
+        function callAI(prompt) {
+            return new Promise((resolve) => {
+                // 模拟AI响应延迟
+                setTimeout(() => {
+                    // 简单的模拟回复
+                    if (prompt.includes('景点')) {
+                        resolve('故宫博物院是中国明清两代的皇家宫殿，是世界上现存规模最大、保存最为完整的木质结构古建筑之一。');
+                    } else if (prompt.includes('路线')) {
+                        resolve('建议您从午门进入故宫，依次参观太和殿、中和殿、保和殿，然后前往御花园，最后从神武门离开。');
+                    } else {
+                        resolve('很高兴为您服务，请问您想了解什么关于文旅的信息？');
+                    }
+                }, 1000);
+            });
+        }
+        
+        let input = document.getElementById('input');
+        let sendBtn = document.getElementById('sendBtn');
+        let chat = document.getElementById('chat');
+        let loading = false;
+        
+        async function send() {
+            if (!input.value.trim() || loading) return;
+            const text = input.value.trim();
+            
+            // 添加用户消息
+            addMessage('user', text);
+            input.value = '';
+            loading = true;
+            sendBtn.disabled = true;
+            sendBtn.textContent = '思考中...';
+            
+            try {
+                const prompt = `你是文旅智能体，回答要简洁、友好并给出可操作建议。\n用户：${text}`;
+                const reply = await callAI(prompt);
+                addMessage('ai', reply);
+            } catch (e) {
+                addMessage('ai', 'AI 暂时不可用，请稍后重试。');
+                console.error(e);
+            } finally {
+                loading = false;
+                sendBtn.disabled = false;
+                sendBtn.textContent = '发送';
+                // 滚动到底部
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+        
+        function addMessage(role, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${role}`;
+            msgDiv.textContent = text;
+            chat.appendChild(msgDiv);
+            // 滚动到底部
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        // 支持回车键发送
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                send();
+            }
+        });
+    </script>
+</body>
+</html>

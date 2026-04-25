@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>设置 - 智游文创</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f8f8;
+            min-height: 100vh;
+        }
+
+        .container {
+            min-height: 100vh;
+            background-color: #f8f8f8;
+        }
+
+        .nav-bar {
+            height: 100px;
+            background-color: #8b0000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(139, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-bar .title {
+            font-size: 34px;
+            font-weight: bold;
+        }
+
+        .settings-list {
+            margin-top: 30px;
+            background-color: #fff;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 35px 30px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:active {
+            background-color: #f9f9f9;
+        }
+
+        .item-label {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #ccc;
+        }
+
+        .value {
+            font-size: 26px;
+            color: #999;
+        }
+
+        .logout-btn {
+            margin: 100px 30px;
+            height: 90px;
+            background-color: #fff;
+            color: #8b0000;
+            border: 2px solid #8b0000;
+            border-radius: 45px;
+            font-size: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            width: calc(100% - 60px);
+        }
+
+        .logout-btn:active {
+            background-color: #fff1f1;
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 28px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <text class="title">设置</text>
+        </div>
+
+        <div class="settings-list">
+            <div class="list-item" onclick="goToAbout()">
+                <text class="item-label">关于智游文创</text>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item">
+                <text class="item-label">服务协议</text>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item">
+                <text class="item-label">隐私政策</text>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item">
+                <text class="item-label">版本信息</text>
+                <text class="value">v1.0.0</text>
+            </div>
+        </div>
+
+        <button class="logout-btn" onclick="handleLogout()">退出登录</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="../static/js/common.js"></script>
+    <script>
+        function toast(title) {
+            const toastEl = document.getElementById('toast');
+            toastEl.textContent = title;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 2000);
+        }
+
+        function handleLogout() {
+            if (!confirm('确认退出\n退出登录后将无法进行预约和购买，是否继续？')) {
+                return;
+            }
+
+            localStorage.removeItem('userId');
+            toast('已退出登录');
+
+            setTimeout(() => {
+                window.location.href = '../module1/login.html';
+            }, 1500);
+        }
+
+        function goToAbout() {
+            alert('关于智游文创', '智游文创是一款致力于弘扬中华优秀传统文化的智慧导览与文创商城小程序。');
+        }
+    </script>
+</body>
+</html>

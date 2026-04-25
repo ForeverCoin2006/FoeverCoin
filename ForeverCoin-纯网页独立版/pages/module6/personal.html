@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人中心 - 智游文创</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f8f8;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .container {
+            min-height: 100vh;
+            background-color: #f8f8f8;
+            padding-bottom: 50px;
+        }
+
+        .user-header {
+            height: 350px;
+            background-color: #8b0000;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            color: #fff;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
+
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 60px;
+            background-color: #fff;
+            overflow: hidden;
+            margin-right: 30px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+        }
+
+        .user-info .nickname {
+            font-size: 36px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .user-info .user-id {
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        .status-card {
+            margin: -60px 30px 0;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .status-item .icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .status-item .label {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .function-list {
+            margin: 30px;
+            background-color: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 35px 30px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:active {
+            background-color: #f9f9f9;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .item-icon {
+            font-size: 36px;
+            margin-right: 20px;
+        }
+
+        .item-label {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .arrow {
+            font-size: 24px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="user-header">
+            <div class="avatar-box">
+                <img class="avatar" src="../static/images/logo.png" alt="avatar">
+            </div>
+            <div class="user-info">
+                <text class="nickname">智游友</text>
+                <text class="user-id">ID: <span id="userIdDisplay"></span></text>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <div class="status-item" onclick="goToOrder()">
+                <text class="icon">📦</text>
+                <text class="label">我的订单</text>
+            </div>
+            <div class="status-item" onclick="goToReserve()">
+                <text class="icon">🎟️</text>
+                <text class="label">我的预约</text>
+            </div>
+            <div class="status-item">
+                <text class="icon">⭐</text>
+                <text class="label">我的收藏</text>
+            </div>
+            <div class="status-item">
+                <text class="icon">🛍️</text>
+                <text class="label">文创订单</text>
+            </div>
+        </div>
+
+        <div class="function-list">
+            <div class="list-item" onclick="goToUserInfo()">
+                <div class="item-left">
+                    <text class="item-icon">🆔</text>
+                    <text class="item-label">实名信息管理</text>
+                </div>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <text class="item-icon">📍</text>
+                    <text class="item-label">收货地址管理</text>
+                </div>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <text class="item-icon">🎧</text>
+                    <text class="item-label">在线客服咨询</text>
+                </div>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item" onclick="goToSettings()">
+                <div class="item-left">
+                    <text class="item-icon">⚙️</text>
+                    <text class="item-label">设置</text>
+                </div>
+                <text class="arrow">></text>
+            </div>
+            <div class="list-item" onclick="goToAbout()">
+                <div class="item-left">
+                    <text class="item-icon">📜</text>
+                    <text class="item-label">关于智游文创</text>
+                </div>
+                <text class="arrow">></text>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/common.js"></script>
+    <script>
+        let userId = localStorage.getItem('userId') || 'user_test_01';
+
+        function init() {
+            userId = localStorage.getItem('userId') || 'user_test_01';
+            document.getElementById('userIdDisplay').textContent = userId.substring(0, 8);
+        }
+
+        function goToUserInfo() {
+            window.location.href = 'user-info.html';
+        }
+
+        function goToOrder() {
+            window.location.href = 'my-order.html';
+        }
+
+        function goToReserve() {
+            window.location.href = '../module4/reserve-list.html';
+        }
+
+        function goToSettings() {
+            window.location.href = 'settings.html';
+        }
+
+        function goToAbout() {
+            alert('关于智游文创', '智游文创是一款致力于弘扬中华优秀传统文化的智慧导览与文创商城小程序。');
+        }
+
+        init();
+    </script>
+</body>
+</html>

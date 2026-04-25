@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>景点详情 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+        .spot-detail-page {
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+        .spot-header {
+            position: relative;
+            height: 225px;
+        }
+        .spot-banner {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 15px;
+            width: 35px;
+            height: 35px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            z-index: 10;
+            cursor: pointer;
+        }
+        .spot-title-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: #fff;
+        }
+        .spot-name {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 7.5px;
+        }
+        .spot-tags {
+            display: flex;
+            gap: 7.5px;
+        }
+        .tag {
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .audio-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: -10px 10px 10px;
+            border-radius: 10px;
+            padding: 12.5px;
+            position: relative;
+            z-index: 10;
+        }
+        .audio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .audio-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .audio-duration {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .audio-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .play-control {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .progress-area {
+            flex: 1;
+        }
+        .progress-bar {
+            position: relative;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: 5px;
+        }
+        .progress {
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+        }
+        .progress-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11px;
+        }
+        .audio-speed {
+            width: 35px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .audio-script {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 10px;
+        }
+        .script-title {
+            color: #fff;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        .script-content {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .content-area {
+            padding: 0 10px 10px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        .info-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7.5px;
+            padding: 0 10px 10px;
+        }
+        .info-card {
+            display: flex;
+            align-items: center;
+            gap: 7.5px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .card-icon {
+            font-size: 20px;
+        }
+        .card-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+        .card-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+        .card-value.crowd.high {
+            color: #ff4d4f;
+        }
+        .card-value.crowd.medium {
+            color: #faad14;
+        }
+        .card-value.crowd.low {
+            color: #52c41a;
+        }
+        .intro-section,
+        .highlights-section,
+        .gallery-section,
+        .location-section {
+            background: #fff;
+            margin: 0 10px 10px;
+            border-radius: 8px;
+            padding: 12.5px;
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .intro-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .highlight-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7.5px;
+        }
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .highlight-num {
+            width: 22.5px;
+            height: 22.5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .highlight-text {
+            font-size: 13px;
+            color: #333;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
+        }
+        .gallery-item {
+            width: 100%;
+            height: 75px;
+            border-radius: 4px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .map-preview {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .map-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .location-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .location-address {
+            font-size: 13px;
+            color: #333;
+        }
+        .location-nav {
+            padding: 5px 10px;
+            background: #007aff;
+            color: #fff;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .bottom-action {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 10px 15px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+        }
+        .action-btn {
+            flex: 1;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .route-btn {
+            background: #f5f7fa;
+            color: #333;
+        }
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="spot-detail-page">
+        <div class="spot-header">
+            <img class="spot-banner" src="https://picsum.photos/750/400?spot=1" alt="主展馆大楼">
+            <div class="back-btn" onclick="goBack">←</div>
+            <div class="spot-title-overlay">
+                <div class="spot-name" id="spotName">主展馆大楼</div>
+                <div class="spot-tags">
+                    <div class="tag">5A景区</div>
+                    <div class="tag">核心景点</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="audio-section">
+            <div class="audio-header">
+                <div class="audio-title">🎧 语音讲解</div>
+                <div class="audio-duration">4分05秒</div>
+            </div>
+            <div class="audio-player">
+                <div class="play-control" onclick="toggleAudio" id="playControl">▶️</div>
+                <div class="progress-area">
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 35%;" id="progressBar"></div>
+                        <div class="progress-handle" style="left: 35%;"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">01:23</span>
+                        <span id="totalTime">04:05</span>
+                    </div>
+                </div>
+                <div class="audio-speed" onclick="changeSpeed" id="audioSpeed">1.0x</div>
+            </div>
+            <div class="audio-script">
+                <div class="script-title">讲解文稿</div>
+                <div class="script-content">
+                    欢迎来到主展馆大楼！这里是整个文化园区的核心建筑，建筑面积达5万平方米。您现在看到的这座建筑采用了传统与现代相结合的设计理念，曾获得多项建筑设计大奖。馆内收藏有各类珍贵文物逾万件，其中国家一级文物超过300件...
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="card-icon">🕐</div>
+                    <div class="card-content">
+                        <div class="card-label">开放时间</div>
+                        <div class="card-value">08:30 - 18:00</div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon">⏱️</div>
+                    <div class="card-content">
+                        <div class="card-label">建议游览</div>
+                        <div class="card-value">45-60分钟</div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon">📍</div>
+                    <div class="card-content">
+                        <div class="card-label">距您距离</div>
+                        <div class="card-value">150m</div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon">👥</div>
+                    <div class="card-content">
+                        <div class="card-label">当前客流</div>
+                        <div class="card-value crowd high">拥挤</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="intro-section">
+                <div class="section-title">景点介绍</div>
+                <div class="intro-content">
+                    主展馆大楼是文化园区的标志性建筑，采用"天圆地方"的设计理念，融合传统建筑美学与现代工程技术。大楼共五层，设有常设展厅8个，临展厅3个，常年举办各类高品质文化展览，是了解中华五千年文明的重要窗口。
+                </div>
+            </div>
+
+            <div class="highlights-section">
+                <div class="section-title">参观亮点</div>
+                <div class="highlight-list">
+                    <div class="highlight-item">
+                        <div class="highlight-num">1</div>
+                        <div class="highlight-text">镇馆之宝——司母戊鼎复制品展示</div>
+                    </div>
+                    <div class="highlight-item">
+                        <div class="highlight-num">2</div>
+                        <div class="highlight-text">沉浸式环幕影院体验</div>
+                    </div>
+                    <div class="highlight-item">
+                        <div class="highlight-num">3</div>
+                        <div class="highlight-text">VR穿越古代都城互动</div>
+                    </div>
+                    <div class="highlight-item">
+                        <div class="highlight-num">4</div>
+                        <div class="highlight-text">文物修复现场观摩区</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gallery-section">
+                <div class="section-title">实景图集</div>
+                <div class="gallery-grid" id="galleryGrid">
+                    <img class="gallery-item" src="https://picsum.photos/200/200?g=1" onclick="previewImage(0)">
+                    <img class="gallery-item" src="https://picsum.photos/200/200?g=2" onclick="previewImage(1)">
+                    <img class="gallery-item" src="https://picsum.photos/200/200?g=3" onclick="previewImage(2)">
+                    <img class="gallery-item" src="https://picsum.photos/200/200?g=4" onclick="previewImage(3)">
+                    <img class="gallery-item" src="https://picsum.photos/200/200?g=5" onclick="previewImage(4)">
+                    <img class="gallery-item" src="https://picsum.photos/200/200?g=6" onclick="previewImage(5)">
+                </div>
+            </div>
+
+            <div class="location-section">
+                <div class="section-title">位置信息</div>
+                <div class="map-preview">
+                    <img class="map-img" src="https://picsum.photos/700/300?map" alt="地图">
+                    <div class="location-info">
+                        <div class="location-address">📍 北京市朝阳区文化园区A区1号</div>
+                        <div class="location-nav" onclick="startNavigation">开始导航</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-action">
+            <div class="action-btn route-btn" onclick="addToRoute">
+                🧭 加入游览路线
+            </div>
+            <div class="action-btn nav-btn" onclick="startNavigation">
+                🚶 立即导航
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let isPlaying = false;
+        let audioProgress = 35;
+        let currentTime = '01:23';
+        let totalTime = '04:05';
+        let speed = 1.0;
+
+        // 数据定义
+        const appData = {
+            spotInfo: {
+                name: '主展馆大楼',
+                image: 'https://picsum.photos/750/400?spot=1',
+                level: '5A景区',
+                type: '核心景点',
+                audioDuration: '4分05秒',
+                openTime: '08:30 - 18:00',
+                suggestTime: '45-60分钟',
+                distance: 150,
+                crowdLevel: 'high',
+                address: '北京市朝阳区文化园区A区1号',
+                audioScript: '欢迎来到主展馆大楼！这里是整个文化园区的核心建筑，建筑面积达5万平方米。您现在看到的这座建筑采用了传统与现代相结合的设计理念，曾获得多项建筑设计大奖。馆内收藏有各类珍贵文物逾万件，其中国家一级文物超过300件...',
+                intro: '主展馆大楼是文化园区的标志性建筑，采用"天圆地方"的设计理念，融合传统建筑美学与现代工程技术。大楼共五层，设有常设展厅8个，临展厅3个，常年举办各类高品质文化展览，是了解中华五千年文明的重要窗口。',
+                highlights: [
+                    '镇馆之宝——司母戊鼎复制品展示',
+                    '沉浸式环幕影院体验',
+                    'VR穿越古代都城互动',
+                    '文物修复现场观摩区'
+                ],
+                gallery: [
+                    'https://picsum.photos/200/200?g=1',
+                    'https://picsum.photos/200/200?g=2',
+                    'https://picsum.photos/200/200?g=3',
+                    'https://picsum.photos/200/200?g=4',
+                    'https://picsum.photos/200/200?g=5',
+                    'https://picsum.photos/200/200?g=6'
+                ]
+            }
+        };
+
+        // 初始化页面
+        function init() {
+            // 从URL获取参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const spotName = urlParams.get('name');
+            if (spotName) {
+                document.getElementById('spotName').textContent = spotName;
+            }
+        }
+
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+        // 切换音频播放状态
+        function toggleAudio() {
+            isPlaying = !isPlaying;
+            const playControl = document.getElementById('playControl');
+            playControl.textContent = isPlaying ? '⏸️' : '▶️';
+            alert(isPlaying ? '开始播放' : '已暂停');
+        }
+
+        // 改变播放速度
+        function changeSpeed() {
+            const speeds = [0.75, 1.0, 1.25, 1.5, 2.0];
+            const idx = speeds.indexOf(speed);
+            speed = speeds[(idx + 1) % speeds.length];
+            document.getElementById('audioSpeed').textContent = speed + 'x';
+            alert(`${speed}倍速`);
+        }
+
+        // 预览图片
+        function previewImage(index) {
+            // 在实际应用中，可以实现图片预览功能
+            alert('预览图片：' + (index + 1));
+        }
+
+        // 开始导航
+        function startNavigation() {
+            alert('启动导航到景点');
+        }
+
+        // 加入路线
+        function addToRoute() {
+            alert('已加入智能游览路线');
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

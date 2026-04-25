@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>资讯总览</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <style>
+        .home-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 15px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .logo {
+            height: 80px;
+            width: 80px;
+            margin-bottom: 15px;
+        }
+        .app-title {
+            font-size: 21px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 7.5px;
+        }
+        .app-subtitle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .module-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .module-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .module-card:hover {
+            transform: translateY(-2px);
+        }
+        .module-icon {
+            font-size: 30px;
+            margin-bottom: 7.5px;
+        }
+        .module-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .module-desc {
+            font-size: 11px;
+            color: #888;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .quick-links {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .link-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 12.5px;
+        }
+        .link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7.5px;
+        }
+        .link-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 12.5px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 7.5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="home-page">
+        <div class="header">
+            <img class="logo" src="../static/images/logo.png" alt="Logo">
+            <div class="app-title">智游文创多端平台</div>
+            <div class="app-subtitle">文化+科技 融合创新体验</div>
+        </div>
+
+        <div class="module-grid">
+            <a href="../module2/index.html" class="module-card exhibition">
+                <div class="module-icon">🖼️</div>
+                <div class="module-name">展览资讯</div>
+                <div class="module-desc">数字展厅、云游体验、最新展览</div>
+            </a>
+
+            <a href="../module3/index.html" class="module-card guide">
+                <div class="module-icon">🗺️</div>
+                <div class="module-name">景区导览</div>
+                <div class="module-desc">智能地图、语音讲解、路线规划</div>
+            </a>
+
+            <a href="../module5/index.html" class="module-card shop">
+                <div class="module-icon">🛒</div>
+                <div class="module-name">文创商城</div>
+                <div class="module-desc">文化周边、创意商品</div>
+            </a>
+
+            <a href="../module8/aiAgent/aiAgent.html" class="module-card ai">
+                <div class="module-icon">🤖</div>
+                <div class="module-name">AI助手</div>
+                <div class="module-desc">智能咨询、景点讲解</div>
+            </a>
+        </div>
+
+        <div class="quick-links">
+            <div class="link-title">快捷页面</div>
+            <div class="link-list">
+                <a href="../module2/cloudTour.html" class="link-item">
+                    🎮 云游数字展厅
+                </a>
+                <a href="../module3/routePlan.html" class="link-item">
+                    🧭 智能路线规划
+                </a>
+                <a href="../module3/spotDetail.html" class="link-item">
+                    🎧 景点语音讲解
+                </a>
+                <a href="../module5/orders.html" class="link-item">
+                    📋 我的订单
+                </a>
+            </div>
+        </div>
+    </div>
+    <script src="../static/js/common.js"></script>
+</body>
+</html>
