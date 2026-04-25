@@ -41,6 +41,33 @@ export default {
   },
   methods: {
     startLocate() {
+      // 检查定位权限
+      uni.getSetting({
+        success: (res) => {
+          if (!res.authSetting['scope.userLocation']) {
+            uni.authorize({
+              scope: 'scope.userLocation',
+              success: () => {
+                this.startLocationTimer();
+              },
+              fail: () => {
+                uni.showToast({ title: "需要定位权限才能使用智能导览", icon: "none" });
+                uni.openSetting({
+                  success: (res) => {
+                    if (res.authSetting['scope.userLocation']) {
+                      this.startLocationTimer();
+                    }
+                  }
+                });
+              }
+            });
+          } else {
+            this.startLocationTimer();
+          }
+        }
+      });
+    },
+    startLocationTimer() {
       this.locTimer = setInterval(() => {
         uni.getLocation({
           type: "gcj02",
