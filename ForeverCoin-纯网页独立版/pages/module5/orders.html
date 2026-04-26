@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的订单 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 20px;
+        }
+        .orders-container {
+            padding: 10px;
+        }
+        .order-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .tab-item.active {
+            color: #007aff;
+            border-bottom: 2px solid #007aff;
+        }
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .order-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        .order-time {
+            font-size: 12px;
+            color: #666;
+        }
+        .order-status {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #ff9500;
+        }
+        .status-paid {
+            color: #007aff;
+        }
+        .status-shipped {
+            color: #34c759;
+        }
+        .status-completed {
+            color: #999;
+        }
+        .status-cancelled {
+            color: #ff3b30;
+        }
+        .order-goods {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .goods-item {
+            display: flex;
+            align-items: center;
+        }
+        .goods-image {
+            width: 50px;
+            height: 50px;
+            background-color: #f5f5f5;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-placeholder {
+            font-size: 8px;
+            color: #999;
+            text-align: center;
+            padding: 5px;
+        }
+        .goods-info {
+            flex: 1;
+        }
+        .goods-name {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .goods-price {
+            font-size: 14px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .goods-quantity {
+            font-size: 14px;
+            color: #666;
+        }
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .order-total {
+            font-size: 14px;
+            color: #666;
+        }
+        .total-price {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .order-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .action-btn {
+            padding: 0 10px;
+            height: 30px;
+            line-height: 30px;
+            font-size: 12px;
+            border: 1px solid #e0e0e0;
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pay-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+        }
+        .confirm-btn {
+            background-color: #007aff;
+            color: white;
+            border: none;
+        }
+        .after-sale-btn {
+            color: #007aff;
+            border-color: #007aff;
+        }
+        .empty {
+            text-align: center;
+            padding: 50px 0;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        /* 新增返回商城按钮样式 */
+        .back-mall-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-mall-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .back-mall-btn a {
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="orders-container" style="position: relative;">
+        <!-- 新增返回商城按钮 -->
+        <div class="back-mall-btn">
+            <a href="./index.html">
+                <span>⬅️</span>
+                <span>返回商城</span>
+            </a>
+        </div>
+        <div class="order-tabs">
+            <div class="tab-item active" onclick="switchStatus('all')">
+                全部
+            </div>
+            <div class="tab-item" onclick="switchStatus('pending')">
+                待付款
+            </div>
+            <div class="tab-item" onclick="switchStatus('paid')">
+                待发货
+            </div>
+            <div class="tab-item" onclick="switchStatus('shipped')">
+                待收货
+            </div>
+            <div class="tab-item" onclick="switchStatus('completed')">
+                已完成
+            </div>
+        </div>
+
+        <div class="order-list" id="orderList">
+            <!-- 订单列表将通过JS动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let activeStatus = 'all';
+        let orderList = [];
+
+        // 模拟订单数据
+        const mockOrders = [
+            {
+                _id: '1',
+                createTime: new Date().getTime() - 86400000,
+                status: 'pending',
+                goodsName: '文创书签套装',
+                goodsPrice: 29.9,
+                quantity: 2,
+                totalPrice: 59.8
+            },
+            {
+                _id: '2',
+                createTime: new Date().getTime() - 172800000,
+                status: 'paid',
+                goodsName: '手工陶瓷杯',
+                goodsPrice: 89.9,
+                quantity: 1,
+                totalPrice: 89.9
+            },
+            {
+                _id: '3',
+                createTime: new Date().getTime() - 259200000,
+                status: 'shipped',
+                goodsName: '数字艺术NFT',
+                goodsPrice: 199.9,
+                quantity: 1,
+                totalPrice: 199.9
+            },
+            {
+                _id: '4',
+                createTime: new Date().getTime() - 345600000,
+                status: 'completed',
+                goodsName: '文化T恤',
+                goodsPrice: 59.9,
+                quantity: 1,
+                totalPrice: 59.9
+            }
+        ];
+
+        // 状态映射
+        const statusMap = {
+            'pending': '待付款',
+            'paid': '待发货',
+            'shipped': '待收货',
+            'completed': '已完成',
+            'cancelled': '已取消'
+        };
+
+        // 初始化页面
+        function init() {
+            getOrders();
+        }
+
+        // 获取订单列表
+        function getOrders() {
+            // 模拟网络请求
+            setTimeout(() => {
+                // 根据状态过滤订单
+                orderList = mockOrders.filter(order => {
+                    return activeStatus === 'all' || order.status === activeStatus;
+                });
+                renderOrderList();
+            }, 500);
+        }
+
+        // 渲染订单列表
+        function renderOrderList() {
+            const orderListElement = document.getElementById('orderList');
+            
+            if (orderList.length === 0) {
+                orderListElement.innerHTML = '<div class="empty">暂无订单</div>';
+                return;
+            }
+            
+            orderListElement.innerHTML = '';
+            
+            orderList.forEach(order => {
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-item';
+                
+                let actionButtons = '';
+                if (order.status === 'pending') {
+                    actionButtons = '<button class="action-btn pay-btn" onclick="payOrder(\'' + order._id + '\')">立即付款</button>';
+                } else if (order.status === 'shipped') {
+                    actionButtons = '<button class="action-btn confirm-btn" onclick="confirmReceipt(\'' + order._id + '\')">确认收货</button>';
+                } else if (order.status === 'completed') {
+                    actionButtons = '<button class="action-btn after-sale-btn" onclick="goToAfterSale(\'' + order._id + '\')">申请售后</button>';
+                }
+                
+                orderItem.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-time">${formatTime(order.createTime)}</div>
+                        <div class="order-status status-${order.status}">${statusMap[order.status] || order.status}</div>
+                    </div>
+                    
+                    <div class="order-goods">
+                        <div class="goods-item">
+                            <div class="goods-image">
+                                <div class="image-placeholder">${order.goodsName}</div>
+                            </div>
+                            <div class="goods-info">
+                                <div class="goods-name">${order.goodsName}</div>
+                                <div class="goods-price">¥${order.goodsPrice}</div>
+                            </div>
+                            <div class="goods-quantity">x${order.quantity}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-footer">
+                        <div class="order-total">
+                            共${order.quantity}件商品，合计：
+                            <div class="total-price">¥${order.totalPrice.toFixed(2)}</div>
+                        </div>
+                        <div class="order-actions">
+                            ${actionButtons}
+                        </div>
+                    </div>
+                `;
+                
+                orderListElement.appendChild(orderItem);
+            });
+        }
+
+        // 切换订单状态
+        function switchStatus(status) {
+            activeStatus = status;
+            
+            // 更新标签状态
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            getOrders();
+        }
+
+        // 支付订单
+        function payOrder(orderId) {
+            alert('支付功能开发中');
+        }
+
+        // 确认收货
+        function confirmReceipt(orderId) {
+            alert('确认收货成功');
+            setTimeout(() => {
+                getOrders();
+            }, 1500);
+        }
+
+        // 申请售后
+        function goToAfterSale(orderId) {
+            window.location.href = `afterSale.html?orderId=${orderId}`;
+        }
+
+        // 格式化时间
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

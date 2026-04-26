@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>注册 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #8B0000 0%, #b22222 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .register-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #8B0000 0%, #b22222 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+        }
+        .register-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8B0000;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .input-label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .input-field {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0 16px;
+            font-size: 15px;
+            background: #f9f9f9;
+            box-sizing: border-box;
+        }
+        .input-placeholder {
+            color: #999;
+        }
+        .error-message {
+            color: #f44336;
+            font-size: 13px;
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 8px 12px;
+            background: #ffebee;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            display: none;
+        }
+        .register-btn {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #8B0000, #b22222);
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .register-btn:hover {
+            background: linear-gradient(135deg, #6d0000, #991111);
+        }
+        .login-link {
+            font-size: 14px;
+            color: #8B0000;
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+        }
+        .login-link a {
+            text-decoration: none;
+            color: #8B0000;
+            border-bottom: 1px solid #8B0000;
+            padding-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="logo-section">
+                <div class="logo">🏛️</div>
+                <div class="title">新人注册</div>
+                <div class="subtitle">加入智游文创，开启文化之旅</div>
+            </div>
+
+            <div class="form-section">
+                <div class="input-group">
+                    <div class="input-label">账号</div>
+                    <input 
+                        class="input-field" 
+                        id="username" 
+                        placeholder="请输入账号"
+                    />
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">密码</div>
+                    <input 
+                        class="input-field" 
+                        id="password" 
+                        type="password" 
+                        placeholder="请输入密码"
+                    />
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">确认密码</div>
+                    <input 
+                        class="input-field" 
+                        id="confirmPassword" 
+                        type="password" 
+                        placeholder="请再次输入密码"
+                    />
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <button class="register-btn" onclick="handleRegister()">注册</button>
+
+                <div class="login-link">
+                    <a href="login.html">已有账号？去登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 注册处理函数
+        function handleRegister() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // 验证输入
+            if (!username || !password || !confirmPassword) {
+                errorMessage.textContent = '请填写完整信息';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // 验证密码长度
+            if (password.length < 6) {
+                errorMessage.textContent = '密码长度不能少于6位';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // 验证密码一致性
+            if (password !== confirmPassword) {
+                errorMessage.textContent = '密码确认与密码不一样';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // 获取本地存储的用户数据
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+            const existingUser = registeredUsers.find(u => u.username === username);
+
+            // 检查账号是否已存在
+            if (existingUser) {
+                errorMessage.textContent = '账号已存在';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // 注册新用户
+            registeredUsers.push({
+                username: username,
+                password: password
+            });
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
+            // 显示注册成功提示
+            errorMessage.style.display = 'none';
+            alert('注册成功');
+
+            // 跳转到登录页面
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

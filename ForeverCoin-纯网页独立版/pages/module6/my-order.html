@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的订单 - 智游文创</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-bar {
+            height: 100px;
+            background-color: #8b0000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(139, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-bar .title {
+            font-size: 34px;
+            font-weight: bold;
+        }
+
+        .list-scroll {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .order-card {
+            background-color: #fff;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            padding: 30px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .order-id {
+            font-size: 24px;
+            color: #999;
+        }
+
+        .status {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .status-pending { color: #8b0000; }
+        .status-paid { color: #52c41a; }
+        .status-shipped { color: #1890ff; }
+        .status-completed { color: #999; }
+
+        .card-body {
+            margin-bottom: 20px;
+        }
+
+        .product-item {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .product-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .product-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            margin-right: 20px;
+            background-color: #f9f9f9;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-name {
+            font-size: 28px;
+            color: #333;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .product-spec {
+            font-size: 22px;
+            color: #999;
+        }
+
+        .product-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .count {
+            font-size: 24px;
+            color: #999;
+        }
+
+        .card-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #eee;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: baseline;
+            margin-bottom: 20px;
+        }
+
+        .total-label {
+            font-size: 24px;
+            color: #666;
+        }
+
+        .total-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            height: 60px;
+            line-height: 60px;
+            font-size: 26px;
+            border-radius: 30px;
+            padding: 0 40px;
+            background-color: #8b0000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 200px;
+        }
+
+        .empty-icon {
+            font-size: 100px;
+            opacity: 0.2;
+            margin-bottom: 30px;
+        }
+
+        .empty-text {
+            font-size: 28px;
+            color: #999;
+            margin-bottom: 50px;
+        }
+
+        .go-shop-btn {
+            width: 300px;
+            height: 80px;
+            background-color: #8b0000;
+            color: #fff;
+            border-radius: 40px;
+            font-size: 28px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 28px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <text class="title">我的订单</text>
+        </div>
+
+        <div class="list-scroll" id="listScroll">
+            <div id="orderListContainer"></div>
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <text class="empty-icon">📦</text>
+                <text class="empty-text">您还没有任何订单记录</text>
+                <button class="go-shop-btn" onclick="goToShop()">前往商城</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="../static/js/common.js"></script>
+    <script>
+        const orderList = [];
+        const userId = localStorage.getItem('userId') || 'user_test_01';
+
+        function toast(title) {
+            const toastEl = document.getElementById('toast');
+            toastEl.textContent = title;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 2000);
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case '待支付': return 'status-pending';
+                case '已支付': return 'status-paid';
+                case '已发货': return 'status-shipped';
+                case '已完成': return 'status-completed';
+                default: return '';
+            }
+        }
+
+        function renderOrderList() {
+            const container = document.getElementById('orderListContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (orderList.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'flex';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = orderList.map((item, index) => `
+                <div class="order-card">
+                    <div class="card-header">
+                        <text class="order-id">订单号：${item._id ? item._id.substring(0, 10) : 'N/A'}...</text>
+                        <text class="status ${getStatusClass(item.status)}">${item.status || ''}</text>
+                    </div>
+                    <div class="card-body">
+                        ${(item.productList || []).map((prod, pIdx) => `
+                            <div class="product-item">
+                                <img class="product-img" src="${prod.img || '../static/images/logo.png'}" alt="product">
+                                <div class="product-info">
+                                    <text class="product-name">${prod.name || ''}</text>
+                                    ${prod.spec ? `<text class="product-spec">规格：${prod.spec}</text>` : ''}
+                                    <div class="product-price-row">
+                                        <text class="price">￥${prod.price || 0}</text>
+                                        <text class="count">x${prod.count || 1}</text>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="card-footer">
+                        <div class="total-row">
+                            <text class="total-label">实付款：</text>
+                            <text class="total-price">￥${item.totalPrice || 0}</text>
+                        </div>
+                        ${item.status === '待支付' ? `
+                        <div class="action-row">
+                            <button class="action-btn" onclick="handlePay('${item._id || ''}')">去支付</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function fetchOrderList() {
+            toast('加载中...');
+
+            try {
+                const res = await fetch('https://api.example.com/order-list-by-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: userId
+                    })
+                }).then(r => r.json()).catch(() => null);
+
+                if (res && res.code === 200) {
+                    orderList.length = 0;
+                    orderList.push(...(res.data || []));
+                } else {
+                    toast(res?.msg || '获取订单列表失败');
+                }
+            } catch (e) {
+                toast('网络异常');
+            }
+
+            renderOrderList();
+        }
+
+        function handlePay(id) {
+            toast('支付功能正在接入中...');
+        }
+
+        function goToShop() {
+            window.location.href = '../module3/index.html';
+        }
+
+        function init() {
+            fetchOrderList();
+        }
+
+        init();
+    </script>
+</body>
+</html>

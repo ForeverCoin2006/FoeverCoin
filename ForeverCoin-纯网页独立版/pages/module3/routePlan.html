@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>智能路线规划 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+        .route-page {
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 70px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 30px 15px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .back-btn {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .header-title {
+            font-size: 17px;
+            font-weight: 500;
+        }
+        .route-types {
+            display: flex;
+            background: #fff;
+            margin: 10px;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .type-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 5px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .type-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .type-tab.active .type-name,
+        .type-tab.active .type-icon {
+            color: #fff;
+        }
+        .type-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .type-name {
+            font-size: 12px;
+            color: #666;
+        }
+        .content-area {
+            padding: 0 10px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .recommend-routes {
+            padding: 0 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .route-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12.5px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .route-card.selected {
+            border-color: #007aff;
+            background: linear-gradient(to right, #f0f7ff, #fff);
+        }
+        .route-header {
+            margin-bottom: 12.5px;
+        }
+        .route-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 7.5px;
+        }
+        .route-features {
+            display: flex;
+            gap: 7.5px;
+        }
+        .feature-tag {
+            padding: 3px 8px;
+            background: #fff7e6;
+            color: #fa8c16;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .route-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background: #f5f7fa;
+            border-radius: 6px;
+            margin-bottom: 12.5px;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #007aff;
+            margin-bottom: 3px;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+        }
+        .route-path {
+            background: #fafafa;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .path-point {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 7.5px 0;
+        }
+        .point-marker {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            z-index: 2;
+        }
+        .marker-num {
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .point-info {
+            flex: 1;
+        }
+        .spot-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .spot-duration {
+            font-size: 11px;
+            color: #888;
+        }
+        .line {
+            position: absolute;
+            left: 12px;
+            top: 32.5px;
+            width: 1px;
+            height: 25px;
+            background: #d9d9d9;
+            z-index: 1;
+        }
+        .route-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .difficulty {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .stars {
+            color: #faad14;
+            letter-spacing: 2px;
+        }
+        .suitable {
+            font-size: 12px;
+            color: #888;
+        }
+        .custom-section {
+            margin: 15px 10px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 12.5px;
+        }
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12.5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        .add-btn {
+            padding: 5px 10px;
+            background: #e8f4ff;
+            color: #007aff;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .custom-tip {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 13px;
+        }
+        .custom-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7.5px;
+        }
+        .custom-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f5f7fa;
+            border-radius: 6px;
+        }
+        .item-num {
+            width: 22.5px;
+            height: 22.5px;
+            background: #007aff;
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .item-name {
+            flex: 1;
+            font-size: 13px;
+            color: #333;
+        }
+        .item-remove {
+            width: 22.5px;
+            height: 22.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4d4f;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .generate-btn {
+            margin-top: 10px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+        .bottom-bar.active {
+            display: flex;
+        }
+        .route-summary {
+            flex: 1;
+        }
+        .summary-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .summary-detail {
+            font-size: 11px;
+            color: #888;
+        }
+        .start-btn {
+            width: 100px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 17.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="route-page">
+        <div class="header">
+            <div class="back-btn" onclick="goBack">←</div>
+            <div class="header-title">智能路线规划</div>
+        </div>
+
+        <div class="route-types">
+            <div class="type-tab active" onclick="selectRouteType(1)">
+                <div class="type-icon">⭐</div>
+                <div class="type-name">经典路线</div>
+            </div>
+            <div class="type-tab" onclick="selectRouteType(2)">
+                <div class="type-icon">🔍</div>
+                <div class="type-name">深度游览</div>
+            </div>
+            <div class="type-tab" onclick="selectRouteType(3)">
+                <div class="type-icon">📸</div>
+                <div class="type-name">轻松打卡</div>
+            </div>
+            <div class="type-tab" onclick="selectRouteType(4)">
+                <div class="type-icon">👨‍👩‍👧</div>
+                <div class="type-name">亲子路线</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="recommend-routes" id="recommendRoutes">
+                <!-- 推荐路线将通过JS动态生成 -->
+            </div>
+
+            <div class="custom-section">
+                <div class="section-title">
+                    <span>🎯 自定义路线</span>
+                    <div class="add-btn" onclick="addSpots">+ 添加景点</div>
+                </div>
+                
+                <div class="custom-tip" id="customTip">
+                    点击上方按钮添加您感兴趣的景点
+                </div>
+                
+                <div class="custom-list" id="customList" style="display: none;">
+                    <!-- 自定义景点将通过JS动态生成 -->
+                    <div class="generate-btn" onclick="generateRoute">
+                        生成我的专属路线
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-bar" id="bottomBar">
+            <div class="route-summary">
+                <div class="summary-text" id="summaryText">
+                    已选择：经典必游路线
+                </div>
+                <div class="summary-detail" id="summaryDetail">
+                    2.5km · 2.5小时 · 6个景点
+                </div>
+            </div>
+            <div class="start-btn" onclick="startNavigation">
+                开始导航
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let selectedType = 1;
+        let selectedRoute = null;
+        let customSpots = [];
+
+        // 数据定义
+        const appData = {
+            routeTypes: [
+                { id: 1, name: '经典路线', icon: '⭐' },
+                { id: 2, name: '深度游览', icon: '🔍' },
+                { id: 3, name: '轻松打卡', icon: '📸' },
+                { id: 4, name: '亲子路线', icon: '👨‍👩‍👧' }
+            ],
+            recommendedRoutes: [
+                {
+                    id: 1,
+                    name: '经典必游路线',
+                    features: ['网红打卡', '不走回头路'],
+                    distance: '2.5km',
+                    duration: '2.5小时',
+                    spotCount: 6,
+                    steps: '3500步',
+                    suitable: '大多数游客',
+                    spots: [
+                        { id: 1, name: '主展馆入口广场', duration: '15分钟' },
+                        { id: 2, name: '青铜器展厅', duration: '30分钟' },
+                        { id: 3, name: '书画艺术馆', duration: '30分钟' },
+                        { id: 4, name: '文化休闲区', duration: '20分钟' },
+                        { id: 5, name: '数字体验馆', duration: '25分钟' },
+                        { id: 6, name: '文创商店', duration: '20分钟' }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: '深度文化之旅',
+                    features: ['专家推荐', '内涵丰富'],
+                    distance: '4km',
+                    duration: '4.5小时',
+                    spotCount: 9,
+                    steps: '6000步',
+                    suitable: '文化爱好者',
+                    spots: [
+                        { id: 1, name: '序厅历史长廊', duration: '20分钟' },
+                        { id: 2, name: '青铜器展厅', duration: '45分钟' },
+                        { id: 3, name: '陶瓷精品馆', duration: '40分钟' },
+                        { id: 4, name: '书画艺术馆', duration: '45分钟' },
+                        { id: 5, name: '非遗活态展示', duration: '30分钟' },
+                        { id: 6, name: '珍品密室', duration: '30分钟' },
+                        { id: 7, name: '古籍阅览室', duration: '25分钟' },
+                        { id: 8, name: '数字体验馆', duration: '25分钟' },
+                        { id: 9, name: '学术交流中心', duration: '20分钟' }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: '网红打卡路线',
+                    features: ['出片率高', '省时省力'],
+                    distance: '1.5km',
+                    duration: '1.5小时',
+                    spotCount: 4,
+                    steps: '2000步',
+                    suitable: '拍照达人',
+                    spots: [
+                        { id: 1, name: '建筑外景打卡', duration: '20分钟' },
+                        { id: 2, name: '光影艺术厅', duration: '25分钟' },
+                        { id: 3, name: '镜花水月装置', duration: '20分钟' },
+                        { id: 4, name: '星空穹顶剧场', duration: '25分钟' }
+                    ]
+                }
+            ]
+        };
+
+        // 初始化页面
+        function init() {
+            renderRoutes();
+        }
+
+        // 渲染推荐路线
+        function renderRoutes() {
+            const recommendRoutes = document.getElementById('recommendRoutes');
+            recommendRoutes.innerHTML = '';
+            
+            appData.recommendedRoutes.forEach(route => {
+                const routeCard = document.createElement('div');
+                routeCard.className = `route-card ${selectedRoute === route.id ? 'selected' : ''}`;
+                routeCard.onclick = () => selectRoute(route);
+                
+                // 生成路线路径
+                let pathHTML = '';
+                route.spots.forEach((spot, idx) => {
+                    pathHTML += `
+                        <div class="path-point">
+                            <div class="point-marker">
+                                <div class="marker-num">${idx + 1}</div>
+                            </div>
+                            <div class="point-info">
+                                <div class="spot-name">${spot.name}</div>
+                                <div class="spot-duration">⏱ 建议停留 ${spot.duration}</div>
+                            </div>
+                            ${idx < route.spots.length - 1 ? '<div class="line"></div>' : ''}
+                        </div>
+                    `;
+                });
+                
+                routeCard.innerHTML = `
+                    <div class="route-header">
+                        <div class="route-name">${route.name}</div>
+                        <div class="route-features">
+                            ${route.features.map(f => `<div class="feature-tag">${f}</div>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="route-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${route.distance}</div>
+                            <div class="stat-label">总路程</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${route.duration}</div>
+                            <div class="stat-label">预计时间</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${route.spotCount}</div>
+                            <div class="stat-label">景点数量</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${route.steps}</div>
+                            <div class="stat-label">预计步数</div>
+                        </div>
+                    </div>
+
+                    <div class="route-path">
+                        ${pathHTML}
+                    </div>
+
+                    <div class="route-footer">
+                        <div class="difficulty">
+                            <span>难度：</span>
+                            <div class="stars">
+                                ★★★☆☆
+                            </div>
+                        </div>
+                        <div class="suitable">适合：${route.suitable}</div>
+                    </div>
+                `;
+                recommendRoutes.appendChild(routeCard);
+            });
+        }
+
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+        // 选择路线类型
+        function selectRouteType(id) {
+            selectedType = id;
+            
+            // 更新标签状态
+            const typeTabs = document.querySelectorAll('.type-tab');
+            typeTabs.forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.type-tab').classList.add('active');
+            
+            const typeName = appData.routeTypes.find(t => t.id === id).name;
+            alert(`切换至${typeName}`);
+        }
+
+        // 选择路线
+        function selectRoute(route) {
+            selectedRoute = route.id;
+            alert(`选择：${route.name}`);
+            
+            // 更新UI
+            renderRoutes();
+            
+            // 显示底部导航栏
+            const bottomBar = document.getElementById('bottomBar');
+            bottomBar.classList.add('active');
+            
+            // 更新底部导航栏信息
+            document.getElementById('summaryText').textContent = `已选择：${route.name}`;
+            document.getElementById('summaryDetail').textContent = `${route.distance} · ${route.duration} · ${route.spotCount}个景点`;
+        }
+
+        // 添加景点
+        function addSpots() {
+            alert('打开景点选择器');
+            // 模拟添加一个景点
+            customSpots.push({ id: customSpots.length + 1, name: '新景点' + (customSpots.length + 1) });
+            renderCustomSpots();
+        }
+
+        // 移除景点
+        function removeSpot(idx) {
+            customSpots.splice(idx, 1);
+            renderCustomSpots();
+        }
+
+        // 渲染自定义景点
+        function renderCustomSpots() {
+            const customTip = document.getElementById('customTip');
+            const customList = document.getElementById('customList');
+            
+            if (customSpots.length === 0) {
+                customTip.style.display = 'block';
+                customList.style.display = 'none';
+            } else {
+                customTip.style.display = 'none';
+                customList.style.display = 'flex';
+                
+                // 清空列表
+                const listContent = customList.querySelector(':scope > div:not(.generate-btn)');
+                if (listContent) {
+                    listContent.remove();
+                }
+                
+                // 创建新的列表内容
+                const listDiv = document.createElement('div');
+                customSpots.forEach((spot, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'custom-item';
+                    item.innerHTML = `
+                        <div class="item-num">${idx + 1}</div>
+                        <div class="item-name">${spot.name}</div>
+                        <div class="item-remove" onclick="removeSpot(${idx})")>✕</div>
+                    `;
+                    listDiv.appendChild(item);
+                });
+                
+                // 插入到生成按钮之前
+                customList.insertBefore(listDiv, customList.querySelector('.generate-btn'));
+            }
+        }
+
+        // 生成路线
+        function generateRoute() {
+            alert('正在生成专属路线...');
+        }
+
+        // 开始导航
+        function startNavigation() {
+            alert('开始导航，祝您游览愉快！');
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

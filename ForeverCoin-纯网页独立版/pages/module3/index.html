@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>景区导览 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 60px;
+        }
+        .guide-page {
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 60px;
+        }
+        .map-container {
+            position: relative;
+            height: 250px;
+            background: #e8f4f8;
+        }
+        .map-view {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .map-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+        .map-marker {
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .map-marker.active .marker-pin {
+            transform: scale(1.2);
+        }
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            background: #007aff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.4);
+            border: 2px solid #fff;
+        }
+        .marker-icon {
+            font-size: 14px;
+        }
+        .marker-label {
+            margin-top: 3px;
+            padding: 3px 6px;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #333;
+            white-space: nowrap;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+        .heat-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .heat-point {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #ff4d4f 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .map-controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 7.5px;
+            z-index: 20;
+        }
+        .control-btn {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .legend-panel {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 6px;
+            padding: 7.5px 10px;
+            z-index: 20;
+        }
+        .legend-title {
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .legend-bar {
+            display: flex;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 3px;
+        }
+        .color-block {
+            flex: 1;
+        }
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #666;
+        }
+        .info-panel {
+            background: #fff;
+            border-radius: 15px 15px 0 0;
+            margin-top: -10px;
+            position: relative;
+            z-index: 30;
+            padding: 15px;
+        }
+        .quick-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .action-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .action-text {
+            font-size: 12px;
+            color: #666;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12.5px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .section-more {
+            font-size: 12px;
+            color: #007aff;
+            cursor: pointer;
+        }
+        .spots-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+        .spot-card {
+            display: flex;
+            width: 140px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .spot-card.active {
+            border-color: #007aff;
+            background: #f0f7ff;
+        }
+        .spot-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+        .spot-info {
+            flex: 1;
+            padding: 7.5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .spot-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+        .spot-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #888;
+        }
+        .crowd-level.high {
+            color: #ff4d4f;
+        }
+        .crowd-level.medium {
+            color: #faad14;
+        }
+        .crowd-level.low {
+            color: #52c41a;
+        }
+        .open-status {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 10px;
+            align-self: flex-start;
+        }
+        .open-status.open {
+            background: #e8f5e9;
+            color: #52c41a;
+        }
+        .open-status.closed {
+            background: #fff2e8;
+            color: #fa8c16;
+        }
+        .time-panel {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 8px;
+            padding: 12.5px;
+        }
+        .time-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 7.5px;
+        }
+        .time-range {
+            color: #007aff;
+            font-weight: bold;
+        }
+        .time-tip {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 7.5px;
+        }
+        .visitor-count {
+            font-size: 12px;
+            color: #333;
+        }
+        .highlight {
+            color: #ff4d4f;
+            font-weight: bold;
+        }
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #fff;
+            display: flex;
+            border-top: 1px solid #eee;
+            z-index: 100;
+        }
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            text-decoration: none;
+        }
+        .bar-item.active {
+            color: #007aff;
+        }
+        .bar-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        .bar-text {
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-page">
+        <div class="map-container">
+            <div class="map-view">
+                <img class="map-bg" src="https://picsum.photos/800/600?map" alt="地图">
+                
+                <!-- 地图标记点 -->
+                <div class="map-marker" style="left: 25%; top: 30%;" onclick="selectMarker({id: 1, name: '主展馆'})")>
+                    <div class="marker-pin">
+                        <div class="marker-icon">🏛️</div>
+                    </div>
+                    <div class="marker-label">主展馆</div>
+                </div>
+                <div class="map-marker" style="left: 45%; top: 45%;" onclick="selectMarker({id: 2, name: '文物厅'})")>
+                    <div class="marker-pin">
+                        <div class="marker-icon">🏺</div>
+                    </div>
+                    <div class="marker-label">文物厅</div>
+                </div>
+                <div class="map-marker" style="left: 65%; top: 25%;" onclick="selectMarker({id: 3, name: '艺术廊'})")>
+                    <div class="marker-pin">
+                        <div class="marker-icon">🎨</div>
+                    </div>
+                    <div class="marker-label">艺术廊</div>
+                </div>
+                <div class="map-marker" style="left: 35%; top: 65%;" onclick="selectMarker({id: 4, name: '休息区'})")>
+                    <div class="marker-pin">
+                        <div class="marker-icon">☕</div>
+                    </div>
+                    <div class="marker-label">休息区</div>
+                </div>
+                <div class="map-marker" style="left: 75%; top: 55%;" onclick="selectMarker({id: 5, name: '出口'})")>
+                    <div class="marker-pin">
+                        <div class="marker-icon">🚪</div>
+                    </div>
+                    <div class="marker-label">出口</div>
+                </div>
+
+                <!-- 热力图 -->
+                <div class="heat-overlay" id="heatOverlay">
+                    <div class="heat-point" style="left: 28%; top: 35%; opacity: 0.9;"></div>
+                    <div class="heat-point" style="left: 48%; top: 48%; opacity: 0.7;"></div>
+                    <div class="heat-point" style="left: 68%; top: 28%; opacity: 0.5;"></div>
+                    <div class="heat-point" style="left: 40%; top: 60%; opacity: 0.3;"></div>
+                </div>
+            </div>
+
+            <div class="map-controls">
+                <div class="control-btn" onclick="zoomIn">➕</div>
+                <div class="control-btn" onclick="zoomOut">➖</div>
+                <div class="control-btn" onclick="toggleHeatmap">🔥</div>
+                <div class="control-btn" onclick="locateMe">📍</div>
+            </div>
+
+            <div class="legend-panel">
+                <div class="legend-title">人流热力</div>
+                <div class="legend-bar">
+                    <div class="color-block" style="background: #52c41a"></div>
+                    <div class="color-block" style="background: #faad14"></div>
+                    <div class="color-block" style="background: #ff4d4f"></div>
+                </div>
+                <div class="legend-labels">
+                    <span>舒适</span>
+                    <span>适中</span>
+                    <span>拥挤</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="quick-actions">
+                <div class="action-item" onclick="goToRoutePlan">
+                    <div class="action-icon">🧭</div>
+                    <div class="action-text">路线规划</div>
+                </div>
+                <div class="action-item" onclick="playAllAudio">
+                    <div class="action-icon">🎧</div>
+                    <div class="action-text">语音导览</div>
+                </div>
+                <div class="action-item" onclick="showFacilities">
+                    <div class="action-icon">🚻</div>
+                    <div class="action-text">设施服务</div>
+                </div>
+                <div class="action-item" onclick="goToAI">
+                    <div class="action-icon">🤖</div>
+                    <div class="action-text">AI助手</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">热门景点</div>
+                <div class="section-more" onclick="showAllSpots">全部景点 ></div>
+            </div>
+
+            <div class="spots-scroll" id="spotsScroll">
+                <!-- 景点卡片将通过JS动态生成 -->
+            </div>
+
+            <div class="time-panel">
+                <div class="time-title">
+                    <span>🕐 园区开放时间</span>
+                    <span class="time-range">08:30 - 18:00</span>
+                </div>
+                <div class="time-tip">
+                    停止入场时间: 17:00 | 建议游览时间: 3-4小时
+                </div>
+                <div class="visitor-count">
+                    当前在园人数: <span class="highlight" id="currentVisitors">1256</span> 人
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <a href="../index/index.html" class="bar-item">
+                <div class="bar-icon">🏠</div>
+                <div class="bar-text">首页</div>
+            </a>
+            <a href="../module2/index.html" class="bar-item">
+                <div class="bar-icon">🖼️</div>
+                <div class="bar-text">展览</div>
+            </a>
+            <a href="index.html" class="bar-item active">
+                <div class="bar-icon">🗺️</div>
+                <div class="bar-text">导览</div>
+            </a>
+            <a href="../module5/index.html" class="bar-item">
+                <div class="bar-icon">🛒</div>
+                <div class="bar-text">商城</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let showHeatmap = true;
+        let selectedMarker = null;
+
+        // 数据定义
+        const appData = {
+            spots: [
+                {
+                    id: 1,
+                    markerId: 1,
+                    name: '主展馆大楼',
+                    image: 'https://picsum.photos/200/150?s=1',
+                    distance: 150,
+                    crowdLevel: 'high',
+                    isOpen: true
+                },
+                {
+                    id: 2,
+                    markerId: 2,
+                    name: '青铜器展厅',
+                    image: 'https://picsum.photos/200/150?s=2',
+                    distance: 280,
+                    crowdLevel: 'medium',
+                    isOpen: true
+                },
+                {
+                    id: 3,
+                    markerId: 3,
+                    name: '书画艺术馆',
+                    image: 'https://picsum.photos/200/150?s=3',
+                    distance: 420,
+                    crowdLevel: 'low',
+                    isOpen: true
+                },
+                {
+                    id: 4,
+                    markerId: 4,
+                    name: '非遗体验区',
+                    image: 'https://picsum.photos/200/150?s=4',
+                    distance: 350,
+                    crowdLevel: 'low',
+                    isOpen: false
+                }
+            ],
+            currentVisitors: 1256
+        };
+
+        // 初始化页面
+        function init() {
+            renderSpots();
+        }
+
+        // 渲染景点列表
+        function renderSpots() {
+            const spotsScroll = document.getElementById('spotsScroll');
+            spotsScroll.innerHTML = '';
+            
+            appData.spots.forEach(spot => {
+                const spotCard = document.createElement('div');
+                spotCard.className = `spot-card ${selectedMarker === spot.markerId ? 'active' : ''}`;
+                spotCard.onclick = () => goToSpotDetail(spot);
+                spotCard.innerHTML = `
+                    <img class="spot-image" src="${spot.image}" alt="${spot.name}">
+                    <div class="spot-info">
+                        <div class="spot-name">${spot.name}</div>
+                        <div class="spot-meta">
+                            <div class="distance">📍 ${spot.distance}m</div>
+                            <div class="crowd-level ${spot.crowdLevel}">
+                                ${spot.crowdLevel === 'low' ? '人少' : spot.crowdLevel === 'medium' ? '适中' : '拥挤'}
+                            </div>
+                        </div>
+                        <div class="open-status ${spot.isOpen ? 'open' : 'closed'}">
+                            ${spot.isOpen ? '开放中' : '已闭馆'}
+                        </div>
+                    </div>
+                `;
+                spotsScroll.appendChild(spotCard);
+            });
+        }
+
+        // 选择标记点
+        function selectMarker(marker) {
+            selectedMarker = marker.id;
+            alert(marker.name);
+            renderSpots();
+        }
+
+        // 放大地图
+        function zoomIn() {
+            alert('放大');
+        }
+
+        // 缩小地图
+        function zoomOut() {
+            alert('缩小');
+        }
+
+        // 切换热力图
+        function toggleHeatmap() {
+            showHeatmap = !showHeatmap;
+            const heatOverlay = document.getElementById('heatOverlay');
+            heatOverlay.style.display = showHeatmap ? 'block' : 'none';
+            alert(showHeatmap ? '热力图已开启' : '热力图已关闭');
+        }
+
+        // 定位
+        function locateMe() {
+            alert('定位中...');
+        }
+
+        // 前往路线规划
+        function goToRoutePlan() {
+            window.location.href = 'routePlan.html';
+        }
+
+        // 播放语音导览
+        function playAllAudio() {
+            alert('开始全景语音导览');
+        }
+
+        // 显示设施服务
+        function showFacilities() {
+            alert('显示服务设施');
+        }
+
+        // 前往AI助手
+        function goToAI() {
+            window.location.href = '../module8/aiAgent/aiAgent.html';
+        }
+
+        // 查看全部景点
+        function showAllSpots() {
+            alert('查看全部景点列表');
+        }
+
+        // 前往景点详情
+        function goToSpotDetail(spot) {
+            window.location.href = `spotDetail.html?id=${spot.id}&name=${spot.name}`;
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

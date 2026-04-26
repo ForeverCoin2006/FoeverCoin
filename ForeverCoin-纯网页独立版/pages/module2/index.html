@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>展览中心 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 60px;
+        }
+        .exhibition-page {
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding-bottom: 60px;
+        }
+        .header-banner {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
+        }
+        .banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .banner-text {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            color: #fff;
+        }
+        .banner-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .banner-desc {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .content-area {
+            padding: 10px;
+        }
+        .section {
+            background: #fff;
+            margin: 10px 0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12.5px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .section-more {
+            font-size: 12px;
+            color: #007aff;
+            cursor: pointer;
+        }
+        .hall-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        /* 主展馆大楼风格 */
+        .hall-card.main-building {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f9f9f9;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .hall-card.main-building:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* 青铜器展厅风格 */
+        .hall-card.bronze-hall {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f9f9f9;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(165, 42, 42, 0.2);
+            border: 1px solid rgba(165, 42, 42, 0.3);
+            transition: all 0.3s ease;
+        }
+        .hall-card.bronze-hall:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(165, 42, 42, 0.3);
+        }
+        
+        /* 书画艺术馆风格 */
+        .hall-card.painting-hall {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f9f9f9;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(139, 69, 19, 0.2);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            transition: all 0.3s ease;
+        }
+        .hall-card.painting-hall:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
+        }
+        
+        /* 非遗体验区风格 */
+        .hall-card.intangible-hall {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f9f9f9;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 128, 128, 0.2);
+            border: 1px solid rgba(0, 128, 128, 0.3);
+            transition: all 0.3s ease;
+        }
+        .hall-card.intangible-hall:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 128, 128, 0.3);
+        }
+        
+        /* 通用展厅样式 */
+        .hall-img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+        .hall-info {
+            padding: 7.5px;
+        }
+        .hall-name {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .hall-desc {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .hall-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-bottom: 4px;
+        }
+        .feature-tag {
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 6px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .hall-card.main-building .feature-tag {
+            background: rgba(255, 215, 0, 0.2);
+            color: #8a6d3b;
+        }
+        .hall-card.bronze-hall .feature-tag {
+            background: rgba(165, 42, 42, 0.2);
+            color: #8b2323;
+        }
+        .hall-card.painting-hall .feature-tag {
+            background: rgba(139, 69, 19, 0.2);
+            color: #654321;
+        }
+        .hall-card.intangible-hall .feature-tag {
+            background: rgba(0, 128, 128, 0.2);
+            color: #006666;
+        }
+        .hall-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .hall-status.open {
+            background: #e8f5e9;
+            color: #52c41a;
+        }
+        .hall-status.close {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+        .hall-tag {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 122, 255, 0.85);
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .exhibition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12.5px;
+        }
+        .exhibition-item {
+            display: flex;
+            background: #f9f9f9;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .ex-img {
+            width: 110px;
+            height: 80px;
+            object-fit: cover;
+        }
+        .ex-content {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .ex-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .ex-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+        .meta-item {
+            font-size: 11px;
+            color: #666;
+        }
+        .ex-desc {
+            font-size: 12px;
+            color: #888;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ex-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+        }
+        .visitor-count {
+            font-size: 11px;
+            color: #999;
+        }
+        .ex-tag {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .news-item {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .news-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .news-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .news-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.4;
+        }
+        .news-summary {
+            font-size: 12px;
+            color: #666;
+            margin: 4px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .news-footer {
+            display: flex;
+            gap: 10px;
+            font-size: 11px;
+            color: #999;
+        }
+        .news-img {
+            width: 80px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #fff;
+            display: flex;
+            border-top: 1px solid #eee;
+            z-index: 100;
+        }
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .bar-item.active {
+            color: #007aff;
+        }
+        .bar-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        .bar-text {
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="exhibition-page">
+        <div class="header-banner">
+            <img class="banner-img" src="https://picsum.photos/750/300" alt="Banner">
+            <div class="banner-text">
+                <div class="banner-title">智游文创展览中心</div>
+                <div class="banner-desc">探索数字文化新体验</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="section digital-hall">
+                <div class="section-header">
+                    <div class="section-title">数字展厅</div>
+                </div>
+                <div class="hall-grid" id="hallGrid">
+                    <!-- 数字展厅卡片将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">近期展览</div>
+                    <div class="section-more">查看全部 ></div>
+                </div>
+                <div class="exhibition-list" id="exhibitionList">
+                    <!-- 展览列表将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <div class="section news-section">
+                <div class="section-header">
+                    <div class="section-title">最新资讯</div>
+                    <div class="section-more">更多资讯 ></div>
+                </div>
+                <div class="news-list" id="newsList">
+                    <!-- 资讯列表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <a href="../module7/智游文创.html" class="bar-item">
+                <div class="bar-icon">🏠</div>
+                <div class="bar-text">首页</div>
+            </a>
+            <a href="index.html" class="bar-item active">
+                <div class="bar-icon">🖼️</div>
+                <div class="bar-text">展览</div>
+            </a>
+            <a href="../module3/index.html" class="bar-item">
+                <div class="bar-icon">🗺️</div>
+                <div class="bar-text">导览</div>
+            </a>
+            <a href="../module5/index.html" class="bar-item">
+                <div class="bar-icon">🛒</div>
+                <div class="bar-text">商城</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 数据定义
+        const appData = {
+            digitalHalls: [
+                { 
+                    id: 1, 
+                    name: '主展馆大楼', 
+                    image: 'https://picsum.photos/200/150?a=1', 
+                    status: '开放', 
+                    type: 'vr',
+                    desc: '文化园区的标志性建筑，采用"天圆地方"设计理念，融合传统与现代元素',
+                    features: ['8个常设展厅', '3个临展厅', '镇馆之宝展示', '沉浸式影院']
+                },
+                { 
+                    id: 2, 
+                    name: '青铜器展厅', 
+                    image: 'https://picsum.photos/200/150?a=2', 
+                    status: '开放', 
+                    type: '3d',
+                    desc: '专门展示中国古代青铜艺术的专题展厅，收藏从夏商周到秦汉时期的青铜器物',
+                    features: ['商代青铜礼器', '青铜乐器展示', '铸造工艺体验', '互动知识问答']
+                },
+                { 
+                    id: 3, 
+                    name: '书画艺术馆', 
+                    image: 'https://picsum.photos/200/150?a=3', 
+                    status: '开放', 
+                    type: 'ar',
+                    desc: '汇集古代到近现代的书法绘画精品，展示中国传统书画艺术的发展历程',
+                    features: ['名人书法真迹', '山水画大师作品', '水墨画创作体验', '碑帖拓印互动']
+                },
+                { 
+                    id: 4, 
+                    name: '非遗体验区', 
+                    image: 'https://picsum.photos/200/150?a=4', 
+                    status: '已闭馆', 
+                    type: 'panorama',
+                    desc: '展示和传承非物质文化遗产的互动区域，设有多个传统工艺体验工坊',
+                    features: ['传统剪纸艺术', '手工陶艺制作', '传统织染技艺', '非遗传承人授课']
+                }
+            ],
+            exhibitions: [
+                {
+                    id: 1,
+                    title: '千年文明 - 古代文物精品展',
+                    location: '主展馆大楼',
+                    date: '2024.01.15 - 2024.06.30',
+                    image: 'https://picsum.photos/200/150?b=1',
+                    desc: '汇集百件国家级珍贵文物，穿越时空对话历史',
+                    visitorCount: 12580,
+                    isHot: true
+                },
+                {
+                    id: 2,
+                    title: '数字敦煌 - 艺术沉浸展',
+                    location: '青铜器展厅',
+                    date: '2024.02.01 - 2024.05.31',
+                    image: 'https://picsum.photos/200/150?b=2',
+                    desc: '数字化还原敦煌壁画，沉浸式感受丝路文化',
+                    visitorCount: 8920,
+                    isHot: true
+                },
+                {
+                    id: 3,
+                    title: '非遗传承 - 传统工艺作品展',
+                    location: '书画艺术馆',
+                    date: '2024.03.01 - 2024.12.31',
+                    image: 'https://picsum.photos/200/150?b=3',
+                    desc: '国家级非遗大师作品，现场互动体验',
+                    visitorCount: 5670,
+                    isHot: false
+                }
+            ],
+            newsList: [
+                {
+                    id: 1,
+                    title: '数字展厅五一期间开放夜场参观',
+                    summary: '为满足观众需求，五一假期数字展厅延长开放至21:00...',
+                    date: '2024-04-10',
+                    views: 1520,
+                    image: 'https://picsum.photos/120/90?c=1'
+                },
+                {
+                    id: 2,
+                    title: '新展预告：丝绸之路文物特展五月开幕',
+                    summary: '汇集十余家博物馆馆藏精品，展现丝路文明璀璨...',
+                    date: '2024-04-08',
+                    views: 2340,
+                    image: 'https://picsum.photos/120/90?c=2'
+                },
+                {
+                    id: 3,
+                    title: 'AI智能导览系统全新上线',
+                    summary: '引入AI大模型技术，智能回答景点相关问题...',
+                    date: '2024-04-05',
+                    views: 3180,
+                    image: 'https://picsum.photos/120/90?c=3'
+                }
+            ]
+        };
+
+        // 初始化页面
+        function init() {
+            renderDigitalHalls();
+            renderExhibitions();
+            renderNews();
+        }
+
+        // 渲染数字展厅
+        function renderDigitalHalls() {
+            const hallGrid = document.getElementById('hallGrid');
+            hallGrid.innerHTML = '';
+            
+            appData.digitalHalls.forEach(hall => {
+                const hallCard = document.createElement('div');
+                
+                // 根据展厅名称添加对应的样式类
+                let hallClass = '';
+                if (hall.name.includes('主展馆')) {
+                    hallClass = 'main-building';
+                } else if (hall.name.includes('青铜器')) {
+                    hallClass = 'bronze-hall';
+                } else if (hall.name.includes('书画')) {
+                    hallClass = 'painting-hall';
+                } else if (hall.name.includes('非遗')) {
+                    hallClass = 'intangible-hall';
+                }
+                
+                hallCard.className = `hall-card ${hallClass}`;
+                hallCard.onclick = () => openHall(hall);
+                hallCard.innerHTML = `
+                    <img class="hall-img" src="${hall.image}" alt="${hall.name}">
+                    <div class="hall-info">
+                        <div class="hall-name">${hall.name}</div>
+                        <div class="hall-desc">${hall.desc}</div>
+                        <div class="hall-features">
+                            ${hall.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                        </div>
+                        <div class="hall-status ${hall.status === '开放' ? 'open' : 'close'}">
+                            ${hall.status}
+                        </div>
+                    </div>
+                `;
+                hallGrid.appendChild(hallCard);
+            });
+        }
+
+        // 渲染展览列表
+        function renderExhibitions() {
+            const exhibitionList = document.getElementById('exhibitionList');
+            exhibitionList.innerHTML = '';
+            
+            appData.exhibitions.forEach(ex => {
+                const exItem = document.createElement('div');
+                exItem.className = 'exhibition-item';
+                exItem.onclick = () => goToDetail(ex);
+                exItem.innerHTML = `
+                    <img class="ex-img" src="${ex.image}" alt="${ex.title}">
+                    <div class="ex-content">
+                        <div class="ex-title">${ex.title}</div>
+                        <div class="ex-meta">
+                            <div class="meta-item">📍 ${ex.location}</div>
+                            <div class="meta-item">📅 ${ex.date}</div>
+                        </div>
+                        <div class="ex-desc">${ex.desc}</div>
+                        <div class="ex-footer">
+                            <div class="visitor-count">👥 ${ex.visitorCount}人已观看</div>
+                            ${ex.isHot ? '<div class="ex-tag">热门</div>' : ''}
+                        </div>
+                    </div>
+                `;
+                exhibitionList.appendChild(exItem);
+            });
+        }
+
+        // 渲染新闻列表
+        function renderNews() {
+            const newsList = document.getElementById('newsList');
+            newsList.innerHTML = '';
+            
+            appData.newsList.forEach(news => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.innerHTML = `
+                    <div class="news-content">
+                        <div class="news-title">${news.title}</div>
+                        <div class="news-summary">${news.summary}</div>
+                        <div class="news-footer">
+                            <div class="news-date">${news.date}</div>
+                            <div class="news-views">👁 ${news.views}</div>
+                        </div>
+                    </div>
+                    <img class="news-img" src="${news.image}" alt="${news.title}">
+                `;
+                newsList.appendChild(newsItem);
+            });
+        }
+
+        // 打开展厅
+        function openHall(hall) {
+            // 跳转到导览模块的景点详情页面
+            window.location.href = '../module3/spotDetail.html?name=' + encodeURIComponent(hall.name);
+        }
+
+        // 查看展览详情
+        function goToDetail(ex) {
+            alert('查看展览详情');
+        }
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

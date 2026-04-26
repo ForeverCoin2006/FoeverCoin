@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>云游数字展厅 - 智游文创</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: #1a1a2e;
+        }
+        .cloud-tour-page {
+            min-height: 100vh;
+            background: #1a1a2e;
+        }
+        .player-container {
+            position: relative;
+            height: 210px;
+            background: #000;
+        }
+        .panorama-view {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .panorama-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.85);
+        }
+        .view-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 7.5px;
+            z-index: 10;
+        }
+        .control-btn {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+        .control-btn.active {
+            background: #007aff;
+            border-color: #007aff;
+        }
+        .hotspot {
+            position: absolute;
+            z-index: 5;
+            cursor: pointer;
+        }
+        .spot-pulse {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 77, 79, 0.4);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .spot-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            background: #ff4d4f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #fff;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+        .direction-controls {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .dir-row {
+            display: flex;
+            gap: 4px;
+        }
+        .dir-btn {
+            width: 25px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .dir-btn.center {
+            background: rgba(0, 122, 255, 0.6);
+        }
+        .info-panel {
+            background: #fff;
+            border-radius: 15px 15px 0 0;
+            margin-top: -10px;
+            position: relative;
+            z-index: 20;
+            min-height: calc(100vh - 200px);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .hall-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #333;
+        }
+        .hall-switch {
+            padding: 5px 10px;
+            background: #f5f7fa;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #007aff;
+            cursor: pointer;
+        }
+        .panel-content {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .intro-section {
+            margin-bottom: 15px;
+        }
+        .intro-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .audio-section {
+            margin-bottom: 15px;
+            padding: 12.5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+        }
+        .audio-section .section-label {
+            color: #fff;
+        }
+        .audio-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .play-btn {
+            width: 35px;
+            height: 35px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+        }
+        .time-display {
+            color: #fff;
+            font-size: 12px;
+            min-width: 40px;
+            text-align: right;
+        }
+        .exhibits-section {
+            margin-bottom: 15px;
+        }
+        .exhibit-list {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        .exhibit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+            cursor: pointer;
+        }
+        .exhibit-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            object-fit: cover;
+        }
+        .exhibit-name {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+        }
+        .stats-section {
+            display: flex;
+            justify-content: space-around;
+            padding: 12.5px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007aff;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+        }
+        .hall-selector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: flex;
+            align-items: flex-end;
+            display: none;
+        }
+        .hall-selector.active {
+            display: flex;
+        }
+        .selector-content {
+            width: 100%;
+            background: #fff;
+            border-radius: 15px 15px 0 0;
+            padding: 15px;
+            max-height: 80vh;
+        }
+        .selector-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .hall-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .hall-option {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        .hall-option.active {
+            border-color: #007aff;
+            background: #f0f7ff;
+        }
+        .hall-thumb {
+            width: 50px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .hall-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .hall-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .hall-desc {
+            font-size: 11px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud-tour-page">
+        <div class="player-container">
+            <div class="panorama-view">
+                <img class="panorama-img" src="https://picsum.photos/800/450?panorama" alt="全景视图">
+                <div class="view-controls">
+                    <div class="control-btn active" onclick="toggleMode('panorama')">
+                        360°全景
+                    </div>
+                    <div class="control-btn" onclick="toggleMode('vr')">
+                        VR模式
+                    </div>
+                    <div class="control-btn" onclick="toggleMode('guide')">
+                        自动导览
+                    </div>
+                </div>
+                <div class="hotspot" style="left: 25%; top: 45%;" onclick="clickHotspot({id: 1, name: '青铜鼎'})")">
+                    <div class="spot-pulse"></div>
+                    <div class="spot-icon">🏺</div>
+                </div>
+                <div class="hotspot" style="left: 60%; top: 38%;" onclick="clickHotspot({id: 2, name: '古画真迹'})")">
+                    <div class="spot-pulse"></div>
+                    <div class="spot-icon">🎨</div>
+                </div>
+                <div class="hotspot" style="left: 78%; top: 55%;" onclick="clickHotspot({id: 3, name: '古籍善本'})")">
+                    <div class="spot-pulse"></div>
+                    <div class="spot-icon">📜</div>
+                </div>
+                <div class="direction-controls">
+                    <div class="dir-btn up" onclick="moveView('up')">↑</div>
+                    <div class="dir-row">
+                        <div class="dir-btn" onclick="moveView('left')">←</div>
+                        <div class="dir-btn center" onclick="resetView">⬤</div>
+                        <div class="dir-btn" onclick="moveView('right')">→</div>
+                    </div>
+                    <div class="dir-btn down" onclick="moveView('down')">↓</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="panel-header">
+                <div class="hall-title" id="hallTitle">文物数字馆</div>
+                <div class="hall-switch" onclick="toggleHallSelector()">
+                    切换展厅 ▼
+                </div>
+            </div>
+
+            <div class="panel-content">
+                <div class="intro-section">
+                    <div class="section-label">展厅介绍</div>
+                    <div class="intro-text" id="hallIntro">
+                        文物数字馆采用最新3D扫描技术，高精度还原百余件国宝级文物。通过数字技术，让珍贵文物突破时空限制，观众可在线全方位观赏文物细节，甚至放大观察肉眼难以察觉的纹理。
+                    </div>
+                </div>
+
+                <div class="audio-section">
+                    <div class="section-label">语音讲解</div>
+                    <div class="audio-player">
+                        <div class="play-btn" onclick="toggleAudio()" id="playBtn">▶️</div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 35%;" id="progressBar"></div>
+                        </div>
+                        <div class="time-display" id="audioTime">01:23</div>
+                    </div>
+                </div>
+
+                <div class="exhibits-section">
+                    <div class="section-label">展厅展品</div>
+                    <div class="exhibit-list" id="exhibitList">
+                        <!-- 展品列表将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <div class="stat-value" id="onlineCount">156</div>
+                        <div class="stat-label">当前在线</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalViews">128.5万</div>
+                        <div class="stat-label">累计访问</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="exhibitCount">86</div>
+                        <div class="stat-label">展品数量</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hall-selector" id="hallSelector">
+            <div class="selector-content">
+                <div class="selector-title">选择展厅</div>
+                <div class="hall-list" id="hallList">
+                    <!-- 展厅列表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let viewMode = 'panorama';
+        let isPlaying = false;
+        let showHallSelector = false;
+
+        // 数据定义
+        const appData = {
+            currentHall: {
+                id: 1,
+                name: '文物数字馆',
+                intro: '文物数字馆采用最新3D扫描技术，高精度还原百余件国宝级文物。通过数字技术，让珍贵文物突破时空限制，观众可在线全方位观赏文物细节，甚至放大观察肉眼难以察觉的纹理。',
+                audioUrl: true,
+                onlineCount: 156,
+                totalViews: '128.5万',
+                exhibitCount: 86,
+                exhibits: [
+                    { id: 1, name: '司母戊鼎', image: 'https://picsum.photos/100/100?e=1' },
+                    { id: 2, name: '清明上河图', image: 'https://picsum.photos/100/100?e=2' },
+                    { id: 3, name: '四羊方尊', image: 'https://picsum.photos/100/100?e=3' },
+                    { id: 4, name: '越王勾践剑', image: 'https://picsum.photos/100/100?e=4' }
+                ]
+            },
+            hallList: [
+                { id: 1, name: '文物数字馆', shortDesc: '国宝级文物数字化展示', thumb: 'https://picsum.photos/80/80?h=1' },
+                { id: 2, name: '艺术沉浸厅', shortDesc: '光影艺术沉浸式体验', thumb: 'https://picsum.photos/80/80?h=2' },
+                { id: 3, name: '360°全景展厅', shortDesc: '实景漫游真实场景还原', thumb: 'https://picsum.photos/80/80?h=3' },
+                { id: 4, name: '非遗体验馆', shortDesc: '传统技艺互动演示', thumb: 'https://picsum.photos/80/80?h=4' }
+            ]
+        };
+
+        // 初始化页面
+        function init() {
+            renderExhibits();
+            renderHalls();
+        }
+
+        // 渲染展品列表
+        function renderExhibits() {
+            const exhibitList = document.getElementById('exhibitList');
+            exhibitList.innerHTML = '';
+            
+            appData.currentHall.exhibits.forEach(item => {
+                const exhibitItem = document.createElement('div');
+                exhibitItem.className = 'exhibit-item';
+                exhibitItem.onclick = () => viewExhibit(item);
+                exhibitItem.innerHTML = `
+                    <img class="exhibit-img" src="${item.image}" alt="${item.name}">
+                    <div class="exhibit-name">${item.name}</div>
+                `;
+                exhibitList.appendChild(exhibitItem);
+            });
+        }
+
+        // 渲染展厅列表
+        function renderHalls() {
+            const hallList = document.getElementById('hallList');
+            hallList.innerHTML = '';
+            
+            appData.hallList.forEach(hall => {
+                const hallOption = document.createElement('div');
+                hallOption.className = `hall-option ${hall.id === appData.currentHall.id ? 'active' : ''}`;
+                hallOption.onclick = () => selectHall(hall);
+                hallOption.innerHTML = `
+                    <img class="hall-thumb" src="${hall.thumb}" alt="${hall.name}">
+                    <div class="hall-info">
+                        <div class="hall-name">${hall.name}</div>
+                        <div class="hall-desc">${hall.shortDesc}</div>
+                    </div>
+                `;
+                hallList.appendChild(hallOption);
+            });
+        }
+
+        // 切换视图模式
+        function toggleMode(mode) {
+            viewMode = mode;
+            
+            // 更新按钮状态
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const modeText = { panorama: '360°全景', vr: 'VR模式', guide: '自动导览' };
+            alert(`切换至${modeText[mode]}`);
+        }
+
+        // 移动视角
+        function moveView(dir) {
+            alert(`移动视角: ${dir}`);
+        }
+
+        // 重置视角
+        function resetView() {
+            alert('重置视角');
+        }
+
+        // 点击热点
+        function clickHotspot(spot) {
+            alert(`查看: ${spot.name}`);
+        }
+
+        // 切换音频播放状态
+        function toggleAudio() {
+            isPlaying = !isPlaying;
+            const playBtn = document.getElementById('playBtn');
+            playBtn.textContent = isPlaying ? '⏸️' : '▶️';
+            alert(isPlaying ? '开始播放' : '暂停播放');
+        }
+
+        // 查看展品
+        function viewExhibit(item) {
+            alert(`查看展品: ${item.name}`);
+        }
+
+        // 切换展厅选择器
+        function toggleHallSelector() {
+            showHallSelector = !showHallSelector;
+            const selector = document.getElementById('hallSelector');
+            selector.classList.toggle('active', showHallSelector);
+        }
+
+        // 选择展厅
+        function selectHall(hall) {
+            appData.currentHall.id = hall.id;
+            appData.currentHall.name = hall.name;
+            
+            // 更新UI
+            document.getElementById('hallTitle').textContent = hall.name;
+            
+            // 关闭选择器
+            toggleHallSelector();
+            
+            alert(`切换至: ${hall.name}`);
+        }
+
+        // 点击选择器外部关闭
+        document.getElementById('hallSelector').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleHallSelector();
+            }
+        });
+
+        // 页面加载完成后初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

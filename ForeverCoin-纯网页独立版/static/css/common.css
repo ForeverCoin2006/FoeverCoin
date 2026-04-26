@@ -1,0 +1,310 @@
+/* 公共样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* 容器样式 */
+.container {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    min-height: 100vh;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* 按钮样式 */
+.btn {
+    background: #8B0000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-secondary {
+    background: #eee;
+    color: #333;
+}
+
+/* 卡片样式 */
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 0 15px 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* 标题样式 */
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #8B0000;
+    border-left: 4px solid #8B0000;
+    padding-left: 8px;
+    margin-bottom: 15px;
+}
+
+/* 底部导航 */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    background-color: #fff;
+    border-top: 1px solid #f0f0f0;
+    padding: 15px 0 10px;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    border-radius: 20px 20px 0 0;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 80px;
+}
+
+.nav-item:hover {
+    background-color: #f9f9f9;
+    transform: translateY(-2px);
+}
+
+.nav-item .icon {
+    font-size: 26px;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-item .label {
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-item.active {
+    color: #8B0000;
+}
+
+.nav-item.active .icon {
+    transform: scale(1.1);
+    text-shadow: 0 0 8px rgba(139, 0, 0, 0.3);
+}
+
+.nav-item.active .label {
+    font-weight: 600;
+}
+
+/* 页面切换 */
+.page {
+    display: none;
+    min-height: calc(100vh - 80px);
+    padding-bottom: 80px;
+}
+
+.page.active {
+    display: block;
+}
+
+/* 模态框 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    cursor: pointer;
+    font-size: 20px;
+    color: #999;
+}
+
+/* 进度条 */
+.progress-bar-container {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: #8B0000;
+    border-radius: 4px;
+}
+
+/* AIGC 相关样式 */
+.aigc-input-group {
+    margin-bottom: 20px;
+}
+
+.aigc-input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.aigc-upload-box {
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.aigc-upload-box:hover {
+    border-color: #8B0000;
+    background-color: #f9f9f9;
+}
+
+.aigc-upload-preview {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.aigc-prompt-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.pattern-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pattern-item.active {
+    background-color: #8B0000;
+    color: #fff;
+    border-color: #8B0000;
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.template-item {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    min-height: 100px;
+}
+
+.template-item .color-block {
+    width: 100%;
+    height: 60px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.template-item.active {
+    border-color: #8B0000;
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.2);
+}
+
+.template-item text {
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    word-break: break-word;
+}
+
+.aigc-type-btn {
+    flex: 1;
+    text-align: center;
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+    .container {
+        max-width: 768px;
+    }
+    
+    .bottom-nav {
+        max-width: 768px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1024px;
+    }
+    
+    .bottom-nav {
+        max-width: 1024px;
+    }
+}
